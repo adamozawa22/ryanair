@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ministerstwo Zdrowia — Komunikat Kryzysowy</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#060b0d;
+    color:#8fffe0;
+    font-family:'Share Tech Mono', monospace;
+    overflow-x:hidden;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+    repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events:none;
+    animation:flicker .15s infinite;
+}
+
+@keyframes flicker{
+    0%{opacity:.95;}
+    50%{opacity:1;}
+    100%{opacity:.93;}
+}
+
+.topbar{
+    background:#08161a;
+    border-bottom:2px solid #00ffd0;
+    padding:15px;
+    position:sticky;
+    top:0;
+    z-index:999;
+    box-shadow:0 0 25px rgba(0,255,208,.3);
+}
+
+.logo{
+    font-size:28px;
+    letter-spacing:3px;
+    color:#00ffd0;
+    text-shadow:0 0 10px #00ffd0;
+}
+
+.gov{
+    font-size:13px;
+    margin-top:5px;
+    opacity:.8;
+}
+
+.progressBox{
+    margin-top:15px;
+}
+
+.progressText{
+    margin-bottom:8px;
+    color:#ff5555;
+}
+
+.progress{
+    width:100%;
+    height:24px;
+    background:#111;
+    border:1px solid #00ffd0;
+    overflow:hidden;
+}
+
+.progressFill{
+    height:100%;
+    width:8%;
+    background:linear-gradient(90deg,#00ffd0,#00ff88,#ffd500,#ff0000);
+    animation:virus 25s linear forwards;
+}
+
+@keyframes virus{
+    0%{width:8%;}
+    20%{width:18%;}
+    40%{width:36%;}
+    60%{width:57%;}
+    80%{width:82%;}
+    100%{width:100%;}
+}
+
+.container{
+    width:90%;
+    max-width:1200px;
+    margin:auto;
+    padding:30px 0;
+}
+
+.panel{
+    border:1px solid rgba(0,255,208,.4);
+    background:rgba(0,20,25,.55);
+    margin-bottom:25px;
+    padding:25px;
+    box-shadow:0 0 20px rgba(0,255,208,.15);
+    position:relative;
+}
+
+.panel::after{
+    content:"CTOS://POL-GOV-NET";
+    position:absolute;
+    top:10px;
+    right:15px;
+    font-size:10px;
+    opacity:.4;
+}
+
+h1,h2{
+    margin-bottom:15px;
+    color:#00ffd0;
+    text-shadow:0 0 10px #00ffd0;
+}
+
+.warning{
+    color:#ff4d4d;
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    50%{opacity:.4;}
+}
+
+.news{
+    margin-top:15px;
+    border-left:3px solid #00ffd0;
+    padding-left:15px;
+    line-height:1.8;
+}
+
+.timeline{
+    display:grid;
+    gap:20px;
+}
+
+.entry{
+    padding:18px;
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(0,0,0,.35);
+}
+
+.entry .date{
+    color:#00ffd0;
+    margin-bottom:10px;
+}
+
+.red{
+    color:#ff5a5a;
+}
+
+.yellow{
+    color:#ffd34d;
+}
+
+.footerAlert{
+    margin-top:40px;
+    border:2px solid red;
+    background:black;
+    padding:30px;
+    position:relative;
+    overflow:hidden;
+}
+
+.glitch{
+    color:red;
+    font-size:30px;
+    margin-bottom:20px;
+    position:relative;
+    animation:glitch 0.2s infinite;
+}
+
+@keyframes glitch{
+    0%{left:0;}
+    25%{left:2px;}
+    50%{left:-2px;}
+    75%{left:3px;}
+    100%{left:-1px;}
+}
+
+.dedsec{
+    color:#ff0000;
+    text-shadow:0 0 10px red;
+    line-height:1.9;
+}
+
+.terminal{
+    margin-top:25px;
+    background:#020202;
+    border:1px solid #00ff00;
+    padding:20px;
+    color:#00ff00;
+    font-size:14px;
+    line-height:1.8;
+}
+
+.scanline{
+    animation:scan 8s linear infinite;
+}
+
+@keyframes scan{
+    0%{transform:translateY(-100%);}
+    100%{transform:translateY(100vh);}
+}
+
+.scanline{
+    position:fixed;
+    width:100%;
+    height:120px;
+    background:linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0,255,200,.06),
+    transparent
+    );
+    pointer-events:none;
+}
+
+.small{
+    font-size:13px;
+    opacity:.7;
+}
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<div class="topbar">
+    <div class="logo">MINISTERSTWO ZDROWIA // ctOS GOVNET</div>
+    <div class="gov">
+        Rząd Rzeczypospolitej Polskiej — System monitoringu epidemiologicznego Warszawa 11.07.2009
+    </div>
+
+    <div class="progressBox">
+        <div class="progressText">POSTĘP ZAKAŻENIA WIRUSEM: MONITORING...</div>
+        <div class="progress">
+            <div class="progressFill"></div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="panel">
+        <h1>KOMUNIKAT PAŃSTWOWY</h1>
+
+        <div class="news">
+            Ministerstwo Zdrowia informuje, że statek handlowy przybyły do portu w Gdańsku został objęty rutynową kontrolą sanitarną.
+            <br><br>
+            Według służb sytuacja pozostaje stabilna i nie ma powodów do paniki.
+            <br><br>
+            Wykryte przypadki przypominają sezonową odmianę wirusa grypowego.
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>AKTUALIZACJE SYSTEMU ctOS</h2>
+
+        <div class="timeline">
+
+            <div class="entry">
+                <div class="date">11.07.2009 — 08:12</div>
+                Wykryto pierwsze przypadki agresywnej gorączki u załogi statku.
+                Służby twierdzą, że sytuacja została opanowana.
+            </div>
+
+            <div class="entry">
+                <div class="date">11.07.2009 — 13:44</div>
+                Kilka oddziałów szpitalnych zostało zamkniętych.
+                <span class="yellow">Rząd apeluje o spokój.</span>
+            </div>
+
+            <div class="entry">
+                <div class="date">12.07.2009 — 00:22</div>
+                Nagrania z monitoringu wskazują na gwałtowne ataki zakażonych osób.
+                Materiały zostały sklasyfikowane jako FAŁSZYWE.
+            </div>
+
+            <div class="entry">
+                <div class="date">12.07.2009 — 06:01</div>
+                <span class="warning">PROSIMY NIE OPUSZCZAĆ DOMÓW.</span>
+                <br><br>
+                Nie patrzcie na media społecznościowe.
+                Nie rozpowszechniajcie niepotwierdzonych informacji.
+            </div>
+
+            <div class="entry">
+                <div class="date">12.07.2009 — 09:52</div>
+                Wojsko zostało rozmieszczone na mostach Warszawy.
+                <span class="red">To tylko środek zapobiegawczy.</span>
+            </div>
+
+            <div class="entry">
+                <div class="date">12.07.2009 — 12:31</div>
+                Rząd zapewnia:
+                <br><br>
+                „Nie istnieje zagrożenie biologiczne wymykające się spod kontroli.”
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>ZASADY BEZPIECZEŃSTWA</h2>
+
+        <div class="news">
+            • Nie zbliżaj się do osób agresywnych lub zakrwawionych.
+            <br><br>
+            • W przypadku kontaktu z zakażonym natychmiast zadzwoń pod numer 997.
+            <br><br>
+            • Infolinia kryzysowa: 995
+            <br><br>
+            • Zamknij drzwi i okna.
+            <br><br>
+            • Nie próbuj opuszczać Warszawy.
+        </div>
+    </div>
+
+    <div class="footerAlert">
+
+        <div class="glitch">
+            [ SYSTEM PRZEJĘTY ]
+        </div>
+
+        <div class="dedsec">
+            DEDSEC: PRZESTAŃCIE WIERZYĆ RZĄDOWI.
+            <br><br>
+            TO NIE JEST ZWYKŁA EPIDEMIA.
+            <br><br>
+            MIASTO ZOSTAŁO SKAZANE.
+            <br><br>
+            MOSTY ZOSTANĄ ZNISZCZONE.
+            <br><br>
+            WSZYSTKIE WYJŚCIA Z WARSZAWY ZOSTANĄ ZAMKNIĘTE.
+            <br><br>
+            ARMIA MA ROZKAZ ELIMINACJI STREF ZAKAŻENIA.
+            <br><br>
+            JEŚLI TO CZYTASZ — UCIEKAJ.
+        </div>
+
+        <div class="terminal">
+            > ctOS root access granted...
+            <br>
+            > military_protocol.exe initialized
+            <br>
+            > bridge_destruction_sequence = TRUE
+            <br>
+            > quarantine_level = OMEGA
+            <br>
+            > civilian_survival_probability = 3%
+            <br>
+            > transmission outside Warsaw imminent...
+            <br>
+            > GOD HELP US
+        </div>
+
+    </div>
+
+    <div class="small" style="margin-top:40px;">
+        © Ministerstwo Zdrowia RP — GOVNET ctOS 2009
+    </div>
+
+</div>
+
+</body>
+</html>
