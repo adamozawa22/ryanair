@@ -1,262 +1,735 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WZK | Wiadomości z Kraju - ctOS Powered</title>
-    <style>
-        :root {
-            --ctos-blue: #00e5ff;
-            --ctos-bg: #0a0e14;
-            --dedsec-white: #ffffff;
-            --dedsec-red: #ff003c;
-            --glass: rgba(15, 25, 35, 0.85);
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WZK // ctOS Media Network</title>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-        body {
-            background: var(--ctos-bg);
-            color: var(--ctos-blue);
-            font-family: 'Segoe UI', 'Roboto', monospace;
-            overflow-x: hidden;
-            height: 100vh;
-        }
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        /* --- EFEKTY GLOBALNE --- */
-        .scanline {
-            width: 100%; height: 2px;
-            background: rgba(0, 229, 255, 0.1);
-            position: fixed; top: 0; z-index: 1000;
-            pointer-events: none;
-            animation: scan 4s linear infinite;
-        }
+:root{
+    --bg:#070b11;
+    --glass:rgba(18,25,35,.72);
+    --border:rgba(100,180,255,.18);
+    --blue:#6fd6ff;
+    --cyan:#00e5ff;
+    --red:#ff3c52;
+    --green:#00ff9f;
+    --white:#dce7f0;
+}
 
-        @keyframes scan { from { top: 0; } to { top: 100%; } }
+body{
+    background:#02050a;
+    overflow-x:hidden;
+    color:white;
+    font-family:'Orbitron',sans-serif;
+}
 
-        .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 100%),
-                        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 100%, 100% 2px, 3px 100%;
-            pointer-events: none; z-index: 999;
-        }
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+    repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.03),
+        rgba(255,255,255,.03) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    mix-blend-mode:overlay;
+    pointer-events:none;
+    z-index:99999;
+    animation:flicker .15s infinite;
+}
 
-        /* --- INTERFEJS WZK (PHASE 1) --- */
-        header {
-            height: 80px;
-            background: var(--glass);
-            border-bottom: 2px solid var(--ctos-blue);
-            display: flex; align-items: center; padding: 0 50px;
-            justify-content: space-between;
-            backdrop-filter: blur(10px);
-        }
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+    radial-gradient(circle at center,transparent 0%,rgba(0,0,0,.45) 100%);
+    pointer-events:none;
+    z-index:9999;
+}
 
-        .logo { font-weight: 900; font-size: 2rem; letter-spacing: 5px; }
-        .live-tag { background: red; color: white; padding: 2px 10px; font-size: 0.8rem; animation: blink 1s infinite; }
+@keyframes flicker{
+    0%{opacity:.6}
+    50%{opacity:.4}
+    100%{opacity:.7}
+}
 
-        @keyframes blink { 50% { opacity: 0; } }
+video,
+img{
+    max-width:100%;
+}
 
-        main { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; max-width: 1400px; margin: auto; }
+#noise{
+    position:fixed;
+    inset:0;
+    background:url("https://i.imgur.com/8K4L7wS.png");
+    opacity:.03;
+    z-index:1;
+    pointer-events:none;
+}
 
-        .hero-news {
-            background: var(--glass);
-            border: 1px solid rgba(0, 229, 255, 0.3);
-            padding: 0; position: relative; overflow: hidden;
-        }
+header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    backdrop-filter:blur(14px);
+    background:rgba(5,10,16,.75);
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
 
-        .cctv-feed {
-            width: 100%; height: 400px; background: #000;
-            position: relative; overflow: hidden;
-        }
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 30px;
+}
 
-        .cctv-label { position: absolute; top: 10px; left: 10px; font-size: 0.7rem; font-family: monospace; }
+.logo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
 
-        .sidebar-section {
-            background: var(--glass); border: 1px solid rgba(0, 229, 255, 0.3);
-            padding: 15px; margin-bottom: 20px;
-        }
+.logo h1{
+    font-size:2rem;
+    color:var(--cyan);
+    letter-spacing:5px;
+    text-shadow:0 0 20px var(--cyan);
+}
 
-        .ticker {
-            position: fixed; bottom: 0; width: 100%; height: 40px;
-            background: #000; border-top: 2px solid var(--ctos-blue);
-            display: flex; align-items: center; overflow: hidden;
-        }
+.logo span{
+    color:#89a8bc;
+    font-size:.8rem;
+}
 
-        .ticker-wrap { white-space: nowrap; animation: ticket 30s linear infinite; }
-        @keyframes ticket { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+.status{
+    display:flex;
+    gap:25px;
+    font-size:.8rem;
+    color:#86c5dd;
+}
 
-        /* --- MODYFIKATORY CTOS (PHASE 2) --- */
-        .ctos-takeover { color: #fff !important; background: #003366 !important; border-color: #fff !important; }
-        .warning-overlay { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #ff003c; color: white; padding: 50px; font-weight: bold; z-index: 2000;
-            text-align: center; border: 5px solid white;
-        }
+.status div{
+    position:relative;
+}
 
-        /* --- DEDSEC (PHASE 3) --- */
-        .dedsec-mode {
-            background: #000 !important;
-            color: var(--dedsec-white) !important;
-            filter: grayscale(1) contrast(1.2);
-        }
+.status div::before{
+    content:"";
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#00ff7f;
+    position:absolute;
+    left:-15px;
+    top:5px;
+    box-shadow:0 0 12px #00ff7f;
+}
 
-        .dedsec-glitch { animation: glitch 0.2s infinite; }
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-5px, 5px); }
-            40% { transform: translate(-5px, -5px); }
-            60% { transform: translate(5px, 5px); }
-            80% { transform: translate(5px, -5px); }
-            100% { transform: translate(0); }
-        }
+.hero{
+    height:60vh;
+    position:relative;
+    overflow:hidden;
+}
 
-        #terminal {
-            display: none; background: #000; color: #0f0; font-family: monospace;
-            padding: 20px; border: 1px solid #333; height: 300px; overflow-y: hidden;
-            font-size: 0.9rem;
-        }
+.hero video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:brightness(.4) contrast(1.2);
+}
 
-        .manifesto {
-            display: none; text-align: center; padding: 100px 20px;
-        }
+.overlay{
+    position:absolute;
+    inset:0;
+    background:
+    linear-gradient(to bottom,rgba(0,0,0,.2),rgba(0,0,0,.8));
+}
 
-        .manifesto h1 { font-size: 4rem; letter-spacing: -2px; margin-bottom: 20px; }
-    </style>
+.heroContent{
+    position:absolute;
+    bottom:40px;
+    left:40px;
+    z-index:2;
+}
+
+.heroContent h2{
+    font-size:3rem;
+    max-width:900px;
+    text-shadow:0 0 25px black;
+}
+
+.heroContent p{
+    margin-top:15px;
+    color:#8dc5e2;
+    font-size:1rem;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+    padding:25px;
+}
+
+.card{
+    background:var(--glass);
+    border:1px solid var(--border);
+    backdrop-filter:blur(20px);
+    border-radius:20px;
+    padding:20px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:
+    0 0 30px rgba(0,200,255,.08),
+    inset 0 0 20px rgba(255,255,255,.02);
+}
+
+.card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.04),transparent);
+    transform:translateX(-100%);
+    animation:scan 6s linear infinite;
+}
+
+@keyframes scan{
+    to{
+        transform:translateX(100%);
+    }
+}
+
+.card h3{
+    margin-bottom:20px;
+    color:var(--cyan);
+}
+
+.newsItem{
+    padding:15px 0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.newsItem:last-child{
+    border-bottom:none;
+}
+
+.newsItem h4{
+    margin-bottom:8px;
+    color:white;
+}
+
+.newsItem p{
+    color:#9eb0bf;
+    font-size:.92rem;
+    line-height:1.6;
+}
+
+.sidebar{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.live{
+    position:relative;
+}
+
+.live img{
+    width:100%;
+    border-radius:12px;
+    filter:contrast(1.2);
+}
+
+.liveTag{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background:red;
+    padding:6px 12px;
+    border-radius:30px;
+    font-size:.75rem;
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+    0%{opacity:1}
+    50%{opacity:.5}
+    100%{opacity:1}
+}
+
+.ticker{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background:black;
+    border-top:1px solid rgba(255,255,255,.15);
+    overflow:hidden;
+    z-index:999999;
+    height:45px;
+    display:flex;
+    align-items:center;
+}
+
+.tickerText{
+    white-space:nowrap;
+    animation:ticker 30s linear infinite;
+    color:#00d5ff;
+    font-family:'Share Tech Mono',monospace;
+    font-size:1rem;
+}
+
+@keyframes ticker{
+    from{transform:translateX(100%)}
+    to{transform:translateX(-100%)}
+}
+
+.glitch{
+    animation:glitch .12s infinite;
+}
+
+@keyframes glitch{
+    0%{
+        transform:translate(0);
+        filter:hue-rotate(0deg);
+    }
+    20%{
+        transform:translate(-2px,2px);
+    }
+    40%{
+        transform:translate(2px,-2px);
+    }
+    60%{
+        transform:translate(-1px,1px);
+        filter:hue-rotate(90deg);
+    }
+    100%{
+        transform:translate(0);
+    }
+}
+
+.alert{
+    background:rgba(255,0,0,.1);
+    border:1px solid rgba(255,0,0,.4);
+    color:#ff7a7a;
+    padding:15px;
+    margin-top:15px;
+    font-size:.9rem;
+}
+
+.terminal{
+    margin-top:30px;
+    background:black;
+    border:1px solid rgba(255,255,255,.15);
+    padding:20px;
+    min-height:240px;
+    font-family:'Share Tech Mono',monospace;
+    color:#00ff95;
+    overflow:hidden;
+    position:relative;
+}
+
+.line{
+    opacity:0;
+    animation:type 0.5s forwards;
+}
+
+@keyframes type{
+    to{
+        opacity:1;
+    }
+}
+
+.manifest{
+    margin:80px auto;
+    width:90%;
+    text-align:center;
+    padding:60px 20px;
+    border:2px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.03);
+}
+
+.manifest h1{
+    font-size:4rem;
+    color:white;
+    text-shadow:
+    0 0 25px white,
+    0 0 50px red;
+}
+
+.manifest p{
+    margin-top:20px;
+    color:#bbb;
+    font-size:1.1rem;
+}
+
+#threat{
+    font-size:2rem;
+    color:#ff3c52;
+}
+
+.ctosMode{
+    filter:contrast(1.3) brightness(.8);
+}
+
+.ctosMode .card{
+    border-color:rgba(255,0,0,.3);
+    box-shadow:0 0 40px rgba(255,0,0,.12);
+}
+
+.ctosMode h3,
+.ctosMode .logo h1{
+    color:#ff5a5a;
+    text-shadow:0 0 15px red;
+}
+
+.dedsecMode{
+    background:black;
+}
+
+.dedsecMode .card{
+    border-color:white;
+    background:rgba(255,255,255,.03);
+}
+
+.dedsecMode *{
+    color:white !important;
+    text-shadow:none !important;
+}
+
+.dedsecMode .ticker{
+    background:white;
+}
+
+.dedsecMode .tickerText{
+    color:black !important;
+}
+
+.dedsecMode .manifest{
+    border:2px solid white;
+}
+
+.fakeCam{
+    margin-top:15px;
+    border-radius:15px;
+    overflow:hidden;
+    position:relative;
+}
+
+.fakeCam img{
+    width:100%;
+    filter:grayscale(.3) contrast(1.3);
+}
+
+.camLabel{
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:black;
+    padding:5px 10px;
+    font-size:.7rem;
+    color:#00ff7f;
+}
+
+@media(max-width:900px){
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .heroContent h2{
+        font-size:2rem;
+    }
+
+    .manifest h1{
+        font-size:2.2rem;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-<div class="scanline"></div>
-<div class="crt-overlay"></div>
+<div id="noise"></div>
 
-<div id="warning" class="warning-overlay">NARUSZENIE PROTOKOŁU: CTOS STABILIZUJE SEKTOR WARSZAWA-CENTRUM</div>
+<header>
+    <div class="topbar">
+        <div class="logo">
+            <h1>WZK</h1>
+            <span>Warszawskie Zintegrowane Kanały // ctOS MEDIA NODE</span>
+        </div>
 
-<header id="main-header">
-    <div class="logo">WZK_NEWS</div>
-    <div id="clock">2026-05-11 | 21:46:34</div>
-    <div class="live-tag">NA ŻYWO</div>
+        <div class="status">
+            <div>SYSTEM ONLINE</div>
+            <div>WARSZAWA CENTRAL</div>
+            <div id="clock">23:48:12</div>
+        </div>
+    </div>
 </header>
 
-<main id="content-grid">
-    <section class="hero-news">
-        <div class="cctv-feed">
-            <div class="cctv-label">CAM_042 // PLAC DEFILAD // KOD_SYGNAŁU: SZYFROWANY</div>
-            <div style="width:100%; height:100%; background: url('https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&q=80&w=1000') center/cover; opacity: 0.5;"></div>
-            <div id="cctv-overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; border: 20px solid rgba(0,229,255,0.1)"></div>
-        </div>
-        <div style="padding: 20px;">
-            <h2 id="headline">Sytuacja w stolicy pod kontrolą. Policja dziękuje za współpracę.</h2>
-            <p id="sub-headline">Po wczorajszych incydentach w centrum, system ctOS 2.0 pomyślnie zoptymalizował ruch i bezpieczeństwo. Prosimy o pozostanie w domach.</p>
-        </div>
-    </section>
+<section class="hero">
+    <video autoplay muted loop>
+        <source src="https://cdn.coverr.co/videos/coverr-night-traffic-in-the-city-1563743892787?download=1080p" type="video/mp4">
+    </video>
 
-    <aside>
-        <div class="sidebar-section">
-            <h3>POGODA</h3>
-            <p>Warszawa: 14°C | Pochmurno</p>
-            <p>Jakość powietrza: DOSKONAŁA (Zgodna z normą Blume)</p>
+    <div class="overlay"></div>
+
+    <div class="heroContent">
+        <h2 id="headline">
+            Warszawa wraca do stabilności po nocnych zamieszkach społecznych
+        </h2>
+        <p>
+            ctOS zapewnia, że sytuacja pozostaje pod pełną kontrolą.
+        </p>
+    </div>
+</section>
+
+<div class="grid">
+
+    <div>
+
+        <div class="card">
+            <h3>WIADOMOŚCI DNIA</h3>
+
+            <div class="newsItem">
+                <h4>Policja zabezpiecza centrum miasta</h4>
+                <p>
+                    Według oficjalnych danych incydenty mają charakter lokalny.
+                    ctOS koordynuje monitoring i służby ratunkowe.
+                </p>
+            </div>
+
+            <div class="newsItem">
+                <h4>Komunikacja miejska częściowo przywrócona</h4>
+                <p>
+                    Metro linii M1 wraca do działania po tymczasowym wstrzymaniu ruchu.
+                </p>
+            </div>
+
+            <div class="newsItem">
+                <h4>Ministerstwo Bezpieczeństwa apeluje o spokój</h4>
+                <p>
+                    Władze proszą obywateli o pozostanie w domach oraz unikanie
+                    nieautoryzowanych zgromadzeń.
+                </p>
+            </div>
+
+            <div class="alert" id="alertBox">
+                STATUS SYSTEMU: STABILNY
+            </div>
         </div>
-        <div class="sidebar-section" id="security-box">
+
+        <div class="card">
             <h3>BEZPIECZEŃSTWO OBYWATELI</h3>
-            <p>Poziom zagrożenia: <span style="color: lime">NISKI</span></p>
-            <p>Zgłoś anomalię: 0-800-ctOS</p>
+
+            <p>
+                Poziom zagrożenia miasta:
+            </p>
+
+            <h1 id="threat">NISKI</h1>
+
+            <div class="fakeCam">
+                <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=1200&auto=format&fit=crop">
+                <div class="camLabel">
+                    CT-CAM // PL-WAW-44
+                </div>
+            </div>
         </div>
-        <div class="sidebar-section">
-            <h3>KOMUNIKACJA</h3>
-            <p>Metro: Linia M1 - Płynnie</p>
-            <p>Tramwaje: Przekierowania w Centrum</p>
+
+        <div class="card">
+            <h3>TRANSMISJA SYSTEMOWA</h3>
+
+            <div class="terminal" id="terminal"></div>
         </div>
-    </aside>
-</main>
+
+    </div>
+
+    <div class="sidebar">
+
+        <div class="card live">
+            <div class="liveTag">LIVE</div>
+
+            <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop">
+
+            <div style="margin-top:15px;">
+                <h3>TRANSMISJA NA ŻYWO</h3>
+                <p>
+                    Kamery miejskie monitorują sytuację w czasie rzeczywistym.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>POGODA</h3>
+
+            <p>Warszawa — 9°C</p>
+            <p>Mgła i opady deszczu</p>
+            <p>Widoczność: ograniczona</p>
+        </div>
+
+        <div class="card">
+            <h3>ANALIZA CTOS</h3>
+
+            <p>
+                Stabilność społeczna: 74%
+            </p>
+
+            <p style="margin-top:12px;">
+                Zaufanie obywateli: 81%
+            </p>
+
+            <p style="margin-top:12px;">
+                Aktywność destabilizacyjna: 12%
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<section class="manifest">
+    <h1 id="manifestText">
+        SYSTEM AKTYWNY
+    </h1>
+
+    <p id="manifestSub">
+        Wszystkie sieci miejskie pozostają pod kontrolą ctOS.
+    </p>
+</section>
 
 <div class="ticker">
-    <div class="ticker-wrap" id="ticker-text">
-        +++ KORPORACJA BLUME OGŁASZA NOWĄ AKTUALIZACJĘ SYSTEMU MONITORINGU +++ 100% SKUTECZNOŚCI W WYKRYWANIU WYKROCZEŃ +++ ZACHOWAJ SPOKÓJ +++ JESTEŚMY TU DLA CIEBIE +++
+    <div class="tickerText" id="ticker">
+        [WZK LIVE] ctOS stabilizuje sytuację w Warszawie • służby bezpieczeństwa zwiększają monitoring • obywatele proszeni o pozostanie w domach • wykryto nieautoryzowane transmisje sieciowe •
     </div>
 </div>
 
-<div id="dedsec-content" class="manifesto">
-    <h1 class="dedsec-glitch">TO NIE JEST AWARIA.</h1>
-    <h1 class="dedsec-glitch" style="color: var(--dedsec-red)">TO PRZEBUDZENIE.</h1>
-    <p style="font-size: 1.5rem; margin-top: 20px;">Widzicie to, co oni chcą, żebyście widzieli.</p>
-    <div id="terminal"></div>
-</div>
-
 <script>
-    const headline = document.getElementById('headline');
-    const subHeadline = document.getElementById('sub-headline');
-    const ticker = document.getElementById('ticker-text');
-    const body = document.body;
-    const warning = document.getElementById('warning');
 
-    // FAZA 1: Subtelne glitche
-    setInterval(() => {
-        if(Math.random() > 0.9) {
-            body.style.filter = 'invert(0.1) hue-rotate(90deg)';
-            setTimeout(() => body.style.filter = 'none', 100);
-        }
-    }, 3000);
+const terminal = document.getElementById("terminal");
 
-    // FAZA 2: Przejęcie przez ctOS (po 10 sekundach)
-    setTimeout(() => {
-        warning.style.display = 'block';
-        setTimeout(() => warning.style.display = 'none', 3000);
-        
-        headline.innerText = "ELEMENTY DESTABILIZUJĄCE POD NADZOREM";
-        subHeadline.innerText = "System ctOS zidentyfikował 412 uczestników zamieszek. Algorytmy predykcyjne Blume zapobiegły kolejnym incydentom. Dziękujemy za posłuszeństwo.";
-        document.getElementById('security-box').innerHTML = "<h3>POZIOM ZAGROŻENIA: <span style='color: red'>KRYTYCZNY</span></h3><p>Skanowanie biometryczne w toku...</p>";
-        body.classList.add('ctos-takeover');
-    }, 10000);
+const lines = [
+"[23:48:18] ctOS node connected...",
+"[23:48:20] monitoring city cameras...",
+"[23:48:24] citizen tracking enabled",
+"[23:48:28] scanning communication channels...",
+"[23:48:35] anomaly detected...",
+"[23:48:39] warning: unauthorized packets",
+"[23:48:44] ctOS stabilizing district 7",
+"[23:48:48] surveillance escalation active"
+];
 
-    // FAZA 3: Atak DedSec (po 20 sekundach)
-    setTimeout(() => {
-        document.getElementById('content-grid').style.display = 'none';
-        document.getElementById('main-header').style.display = 'none';
-        document.querySelector('.ticker').style.display = 'none';
-        
-        body.classList.remove('ctos-takeover');
-        body.classList.add('dedsec-mode');
-        document.getElementById('dedsec-content').style.display = 'block';
-        document.getElementById('terminal').style.display = 'block';
-        
-        startTerminal();
-    }, 20000);
+lines.forEach((line,index)=>{
+    const div=document.createElement("div");
+    div.className="line";
+    div.style.animationDelay=`${index*0.8}s`;
+    div.innerText=line;
+    terminal.appendChild(div);
+});
 
-    function startTerminal() {
-        const lines = [
-            "> Initializing DedSec.Exploit...",
-            "> Connection established: 127.0.0.1:8080",
-            "> Bypassing Blume Firewall [###############] 100%",
-            "> Accessing WZK_NEWS Database...",
-            "> DECRYPTING SECRET_FILES_WARSAW.PDF",
-            "> EVIDENCE: Blume manipulates media metrics.",
-            "> EVIDENCE: ctOS predicts political views of citizens.",
-            "> UPLOADING TRUTH TO ALL SCREENS...",
-            "> [ERROR] System interference detected.",
-            "> Redirecting signal through satellite...",
-            "> DOŚĆ KŁAMSTW.",
-            "> WOLNOŚĆ TO NIE ALGORYTM.",
-            "> JESTEŚMY DEDSEC. JESTEŚMY WSZĘDZIE."
-        ];
-        
-        const term = document.getElementById('terminal');
-        let i = 0;
-        setInterval(() => {
-            if(i < lines.length) {
-                const p = document.createElement('p');
-                p.innerText = lines[i];
-                term.appendChild(p);
-                term.scrollTop = term.scrollHeight;
-                i++;
-            }
-        }, 800);
-    }
+function updateClock(){
+    const now = new Date();
+    document.getElementById("clock").innerText =
+    now.toLocaleTimeString("pl-PL");
+}
 
-    // Zegar
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleString();
-    }, 1000);
+setInterval(updateClock,1000);
+
+setTimeout(()=>{
+    document.body.classList.add("glitch");
+
+    document.getElementById("headline").innerText =
+    "ctOS stabilizuje sytuację po aktach destabilizacji";
+
+    document.getElementById("alertBox").innerText =
+    "ANOMALIA WYKRYTA // AUTOMATYCZNA KOREKCJA INFORMACJI";
+
+},6000);
+
+setTimeout(()=>{
+
+    document.body.classList.remove("glitch");
+    document.body.classList.add("ctosMode");
+
+    document.getElementById("threat").innerText="ŚREDNI";
+
+    document.getElementById("ticker").innerText =
+    "[ctOS ALERT] elementy destabilizujące zidentyfikowane • zgłaszaj podejrzane zachowania • pełna kontrola miasta zwiększa bezpieczeństwo • monitoring obywateli aktywny •";
+
+    document.getElementById("manifestText").innerText =
+    "PORZĄDEK WYMAGA NADZORU";
+
+    document.getElementById("manifestSub").innerText =
+    "ctOS chroni obywateli przed zagrożeniem chaosu.";
+
+},12000);
+
+setTimeout(()=>{
+
+    document.body.classList.add("glitch");
+
+    const audio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_4d8f2f1a4e.mp3");
+    audio.volume = 0.4;
+    audio.play();
+
+    document.getElementById("headline").innerText =
+    "BŁĄD TRANSMISJI // NIEAUTORYZOWANY DOSTĘP";
+
+    document.getElementById("alertBox").innerText =
+    "CTOS CORE FAILURE";
+
+},18000);
+
+setTimeout(()=>{
+
+    document.body.classList.remove("ctosMode");
+    document.body.classList.add("dedsecMode");
+    document.body.classList.add("glitch");
+
+    document.getElementById("manifestText").innerText =
+    "TO NIE JEST AWARIA. TO PRZEBUDZENIE.";
+
+    document.getElementById("manifestSub").innerText =
+    "DedSec ujawnia prawdę o systemie kontroli.";
+
+    document.getElementById("headline").innerText =
+    "WYCIEK: ctOS prowadził masową inwigilację obywateli";
+
+    document.getElementById("ticker").innerText =
+    "[DEDSEC LIVE] media manipulowały społeczeństwem • dane obywateli sprzedawane korporacjom • tajne eksperymenty ujawnione • przejmujemy transmisję •";
+
+    document.getElementById("threat").innerText =
+    "SYSTEM UPADA";
+
+    terminal.innerHTML = `
+    <div class="line">root@dedsec: access granted</div>
+    <div class="line">decrypting classified archives...</div>
+    <div class="line">uploading surveillance leaks...</div>
+    <div class="line">government corruption exposed</div>
+    <div class="line">media manipulation protocols found</div>
+    <div class="line">ctOS psychological monitoring enabled</div>
+    <div class="line">citizen privacy status: NON-EXISTENT</div>
+    <div class="line">WE ARE DEDSEC</div>
+    `;
+
+},24000);
+
 </script>
 
 </body>
