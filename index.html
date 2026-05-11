@@ -1,906 +1,597 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ministerstwo Zdrowia RP — ctOS Emergency System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@400;700;900&display=swap');
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+body{
+    background:#020814;
+    color:#d8f6ff;
+    font-family:'Segoe UI',sans-serif;
+    overflow-x:hidden;
+    background-image:
+    radial-gradient(circle at top,#123 0%,#020814 60%);
+}
 
-  body {
-    background: #000a00;
-    color: #00ff41;
-    font-family: 'Share Tech Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  .scanlines {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-    z-index: 1000;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.15) 2px,
-      rgba(0,0,0,0.15) 4px
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+    repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 3px
     );
-  }
-
-  .crt-flicker {
-    animation: flicker 8s infinite;
-  }
-
-  @keyframes flicker {
-    0%,98%,100% { opacity: 1; }
-    99% { opacity: 0.85; }
-  }
-
-  /* TOP STATUS BAR */
-  #top-bar {
-    background: #001200;
-    border-bottom: 2px solid #00ff41;
-    padding: 6px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .bar-logo {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    font-weight: 900;
-    color: #00ff41;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .bar-separator { color: #005500; margin: 0 4px; }
-
-  .infection-bar-wrap {
-    flex: 1;
-    min-width: 220px;
-  }
-
-  .infection-label {
-    font-size: 10px;
-    color: #ffaa00;
-    letter-spacing: 1px;
-    margin-bottom: 2px;
-  }
-
-  .infection-track {
-    height: 12px;
-    background: #001a00;
-    border: 1px solid #004400;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .infection-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #00aa00, #ffaa00 60%, #ff3300);
-    width: 0%;
-    transition: width 2s ease;
-    position: relative;
-  }
-
-  .infection-fill::after {
-    content: '';
-    position: absolute;
-    right: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: #fff;
-    animation: pulse-cursor 0.5s infinite;
-  }
-
-  @keyframes pulse-cursor { 0%,100%{opacity:1}50%{opacity:0} }
-
-  .infection-pct {
-    font-size: 11px;
-    color: #ff4400;
-    font-weight: bold;
-    margin-left: 8px;
-    min-width: 50px;
-  }
-
-  .bar-time {
-    font-family: 'VT323', monospace;
-    font-size: 18px;
-    color: #00cc33;
-    letter-spacing: 2px;
-    white-space: nowrap;
-  }
-
-  .bar-alert {
-    font-size: 10px;
-    padding: 3px 8px;
-    border: 1px solid;
-    animation: blink-border 1s infinite;
-  }
-
-  .alert-green { color: #00ff41; border-color: #00ff41; }
-  .alert-yellow { color: #ffcc00; border-color: #ffcc00; display: none; }
-  .alert-red { color: #ff0000; border-color: #ff0000; display: none; }
-
-  @keyframes blink-border { 0%,100%{opacity:1}50%{opacity:0.3} }
-
-  /* HEADER */
-  #site-header {
-    background: #000e00;
-    border-bottom: 1px solid #003300;
-    padding: 20px 24px 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .gov-emblem {
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-  }
-
-  .header-text h1 {
-    font-family: 'Orbitron', monospace;
-    font-size: 18px;
-    font-weight: 900;
-    color: #00ff41;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .header-text .subtitle {
-    font-size: 11px;
-    color: #007700;
-    letter-spacing: 2px;
-    margin-top: 4px;
-  }
-
-  .header-text .dept {
-    font-size: 12px;
-    color: #00aa33;
-    margin-top: 6px;
-    letter-spacing: 1px;
-  }
-
-  /* NAV */
-  #nav-bar {
-    background: #001500;
-    border-bottom: 1px solid #003300;
-    padding: 0 24px;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-  }
-
-  .nav-item {
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #006600;
-    padding: 10px 16px;
-    border-right: 1px solid #002200;
-    cursor: default;
-    white-space: nowrap;
-  }
-
-  .nav-item.active { color: #00ff41; background: #001200; border-bottom: 2px solid #00ff41; }
-
-  /* MAIN */
-  #main { max-width: 960px; margin: 0 auto; padding: 24px; }
-
-  /* TICKER */
-  .ticker-wrap {
-    background: #001000;
-    border: 1px solid #003300;
-    overflow: hidden;
-    padding: 6px 0;
-    margin-bottom: 24px;
-  }
-
-  .ticker-inner {
-    display: inline-block;
-    white-space: nowrap;
-    animation: ticker-scroll 40s linear infinite;
-    font-size: 12px;
-    color: #00cc33;
-    letter-spacing: 1px;
-  }
-
-  @keyframes ticker-scroll {
-    0% { transform: translateX(100vw); }
-    100% { transform: translateX(-100%); }
-  }
-
-  /* SECTIONS */
-  .section {
-    margin-bottom: 32px;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: reveal 0.6s forwards;
-  }
-
-  @keyframes reveal { to { opacity:1; transform:none; } }
-
-  .section:nth-child(1) { animation-delay: 0.3s; }
-  .section:nth-child(2) { animation-delay: 0.8s; }
-  .section:nth-child(3) { animation-delay: 1.4s; }
-  .section:nth-child(4) { animation-delay: 2.0s; }
-  .section:nth-child(5) { animation-delay: 2.6s; }
-  .section:nth-child(6) { animation-delay: 3.2s; }
-
-  .section-header {
-    border-left: 3px solid #00ff41;
-    padding-left: 12px;
-    margin-bottom: 12px;
-  }
-
-  .section-header h2 {
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    color: #00ff41;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .section-header .section-id {
-    font-size: 10px;
-    color: #005500;
-    letter-spacing: 1px;
-    margin-top: 2px;
-  }
-
-  .section-body {
-    background: #000e00;
-    border: 1px solid #002200;
-    padding: 16px;
-    line-height: 1.7;
-  }
-
-  .section-body p {
-    font-size: 13px;
-    color: #00cc33;
-    margin-bottom: 10px;
-  }
-
-  .section-body p:last-child { margin-bottom: 0; }
-
-  /* CALLOUT BOXES */
-  .callout {
-    border: 1px solid #004400;
-    padding: 12px 14px;
-    margin: 12px 0;
-    background: #000800;
-    font-size: 12px;
-    color: #00bb22;
-  }
-
-  .callout.warning {
-    border-color: #554400;
-    background: #0a0800;
-    color: #ccaa00;
-  }
-
-  .callout.info {
-    border-color: #003355;
-    background: #000810;
-    color: #2299cc;
-  }
-
-  .callout.ok {
-    border-color: #004400;
-    color: #00cc44;
-  }
-
-  .callout-label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    opacity: 0.7;
-  }
-
-  /* STATS GRID */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 8px;
-    margin: 12px 0;
-  }
-
-  .stat-card {
-    background: #000c00;
-    border: 1px solid #002200;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .stat-num {
-    font-family: 'VT323', monospace;
-    font-size: 32px;
-    color: #00ff41;
-    display: block;
-  }
-
-  .stat-num.warn { color: #ffaa00; }
-  .stat-num.danger { color: #ff3300; animation: blink-danger 1s infinite; }
-
-  @keyframes blink-danger { 0%,100%{opacity:1}50%{opacity:0.4} }
-
-  .stat-label {
-    font-size: 10px;
-    color: #005500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  /* RULES LIST */
-  .rules-list {
-    list-style: none;
-    margin: 8px 0;
-  }
-
-  .rules-list li {
-    font-size: 12px;
-    color: #00cc33;
-    padding: 8px 0;
-    border-bottom: 1px solid #001800;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .rules-list li::before {
-    content: '▶';
-    color: #00ff41;
-    font-size: 10px;
-    margin-top: 2px;
-    flex-shrink: 0;
-  }
-
-  .number-badge {
-    display: inline-block;
-    background: #001200;
-    border: 1px solid #00ff41;
-    color: #00ff41;
-    font-family: 'VT323', monospace;
-    font-size: 20px;
-    padding: 2px 8px;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-
-  /* DEDSEC TAKEOVER */
-  #dedsec-section {
-    display: none;
-    margin-bottom: 32px;
-  }
-
-  #dedsec-section .dedsec-header {
-    background: #1a0000;
-    border: 2px solid #ff0000;
-    padding: 16px;
-    text-align: center;
-    animation: dedsec-pulse 0.8s infinite;
-  }
-
-  @keyframes dedsec-pulse {
-    0%,100% { border-color: #ff0000; box-shadow: 0 0 8px rgba(255,0,0,0.3); }
-    50% { border-color: #ff5500; box-shadow: 0 0 20px rgba(255,0,0,0.6); }
-  }
-
-  .dedsec-logo {
-    font-family: 'Orbitron', monospace;
-    font-size: 24px;
-    font-weight: 900;
-    color: #ff0000;
-    letter-spacing: 6px;
-    text-shadow: 0 0 10px #ff0000;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .dedsec-sub {
-    font-size: 11px;
-    color: #aa0000;
-    letter-spacing: 3px;
-  }
-
-  .dedsec-body {
-    background: #0d0000;
-    border: 1px solid #660000;
-    border-top: none;
-    padding: 20px;
-  }
-
-  .dedsec-body p {
-    font-size: 13px;
-    color: #ff4444;
-    line-height: 1.8;
-    margin-bottom: 12px;
-  }
-
-  .dedsec-body p strong {
-    color: #ff0000;
-    font-size: 14px;
-  }
-
-  .dedsec-warning {
-    border: 1px solid #ff0000;
-    background: #1a0000;
-    padding: 14px;
-    margin: 14px 0;
-    color: #ff6666;
-    font-size: 13px;
-    animation: dedsec-pulse 1.5s infinite;
-  }
-
-  .dedsec-glitch {
-    font-family: 'VT323', monospace;
-    font-size: 28px;
-    color: #ff0000;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    animation: glitch 0.3s infinite;
-    text-align: center;
-    margin: 12px 0;
-  }
-
-  @keyframes glitch {
-    0% { text-shadow: 2px 0 #00ff41, -2px 0 #ff0000; }
-    25% { text-shadow: -2px 0 #00ff41, 2px 0 #ff0000; }
-    50% { text-shadow: 2px 2px #00ff41, -2px -2px #ff0000; }
-    75% { text-shadow: 0 0 transparent; }
-    100% { text-shadow: -2px 0 #00ff41, 2px 0 #ff0000; }
-  }
-
-  /* FOOTER */
-  #site-footer {
-    background: #000800;
-    border-top: 1px solid #002200;
-    padding: 16px 24px;
-    text-align: center;
-    font-size: 10px;
-    color: #003300;
-    letter-spacing: 1px;
-  }
-
-  /* Progress phases hidden by default */
-  .phase-2, .phase-3 { display: none; }
-
-  /* Typing effect */
-  .typed { overflow: hidden; }
-
-  /* Progress simulation controls (for demo) */
-  #demo-controls {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    z-index: 200;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .ctrl-btn {
-    background: #001200;
-    border: 1px solid #004400;
-    color: #00cc33;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    padding: 6px 10px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-
-  .ctrl-btn:hover { background: #002200; border-color: #00ff41; color: #00ff41; }
-
-  .ctOS-watermark {
-    position: fixed;
-    bottom: 8px;
-    left: 16px;
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    color: #002200;
-    letter-spacing: 2px;
-    z-index: 50;
-  }
+    pointer-events:none;
+    z-index:9999;
+    animation:flicker .15s infinite;
+}
+
+@keyframes flicker{
+    0%{opacity:.9;}
+    50%{opacity:1;}
+    100%{opacity:.95;}
+}
+
+header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    backdrop-filter:blur(16px);
+    background:rgba(5,15,30,.82);
+    border-bottom:1px solid rgba(0,255,255,.3);
+    box-shadow:0 0 30px rgba(0,255,255,.25);
+}
+
+.topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 35px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo img{
+    width:60px;
+}
+
+.logo h1{
+    font-size:22px;
+    font-family:'Orbitron',sans-serif;
+    color:#9cefff;
+    text-shadow:0 0 12px cyan;
+}
+
+.system-icons{
+    display:flex;
+    gap:18px;
+    font-size:14px;
+    color:#ff4d4d;
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    50%{opacity:.3;}
+}
+
+.ticker{
+    overflow:hidden;
+    white-space:nowrap;
+    background:rgba(0,255,255,.08);
+    border-top:1px solid rgba(255,255,255,.08);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    padding:10px 0;
+    font-family:'Share Tech Mono',monospace;
+}
+
+.ticker span{
+    display:inline-block;
+    padding-left:100%;
+    animation:ticker 22s linear infinite;
+    color:#9ff;
+}
+
+@keyframes ticker{
+    100%{
+        transform:translateX(-100%);
+    }
+}
+
+.container{
+    width:92%;
+    max-width:1450px;
+    margin:auto;
+}
+
+.hero{
+    margin-top:35px;
+    padding:40px;
+    border-radius:24px;
+    background:rgba(20,40,70,.45);
+    backdrop-filter:blur(14px);
+    border:1px solid rgba(0,255,255,.25);
+    box-shadow:
+    0 0 35px rgba(0,255,255,.15),
+    inset 0 0 50px rgba(255,255,255,.03);
+}
+
+.section-title{
+    font-family:'Orbitron';
+    color:#9ef5ff;
+    margin-bottom:20px;
+    text-shadow:0 0 15px cyan;
+}
+
+.warning{
+    color:#ff5b5b;
+    text-shadow:0 0 10px red;
+}
+
+.progress-container{
+    margin-top:20px;
+}
+
+.progress-label{
+    margin-bottom:10px;
+    font-family:'Share Tech Mono';
+}
+
+.progress{
+    height:28px;
+    border-radius:30px;
+    overflow:hidden;
+    background:#08131f;
+    border:1px solid rgba(255,255,255,.1);
+}
+
+.progress-bar{
+    height:100%;
+    width:17%;
+    background:linear-gradient(90deg,#00b7ff,#00ffe7);
+    box-shadow:0 0 20px cyan;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    50%{
+        filter:brightness(1.4);
+    }
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+    margin-top:35px;
+}
+
+.card{
+    background:rgba(11,25,44,.55);
+    border:1px solid rgba(0,255,255,.2);
+    border-radius:18px;
+    overflow:hidden;
+    backdrop-filter:blur(8px);
+    box-shadow:0 0 25px rgba(0,255,255,.12);
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 0 40px rgba(0,255,255,.3);
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    filter:saturate(.8) contrast(1.1);
+}
+
+.card-content{
+    padding:20px;
+}
+
+.chart{
+    height:200px;
+    position:relative;
+    background:
+    linear-gradient(to top,rgba(255,0,0,.08),transparent),
+    repeating-linear-gradient(
+        to right,
+        rgba(255,255,255,.04) 0,
+        rgba(255,255,255,.04) 1px,
+        transparent 1px,
+        transparent 60px
+    );
+}
+
+.chart::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    height:100%;
+    background:
+    linear-gradient(
+        120deg,
+        transparent 0%,
+        transparent 20%,
+        rgba(255,0,0,.4) 35%,
+        rgba(255,0,0,.8) 55%,
+        transparent 70%
+    );
+    clip-path:polygon(0 90%,10% 85%,20% 83%,30% 79%,40% 70%,50% 65%,60% 45%,70% 30%,80% 20%,90% 10%,100% 0,100% 100%,0 100%);
+}
+
+.alert-section{
+    margin-top:60px;
+    padding:35px;
+    background:rgba(35,0,0,.45);
+    border:1px solid rgba(255,0,0,.3);
+    border-radius:20px;
+    position:relative;
+    overflow:hidden;
+}
+
+.alert-section::before{
+    content:"SIGNAL LOST";
+    position:absolute;
+    top:10px;
+    right:-50px;
+    transform:rotate(18deg);
+    font-size:40px;
+    opacity:.06;
+    color:red;
+    font-family:'Orbitron';
+}
+
+.glitch{
+    position:relative;
+    animation:glitch 1.2s infinite;
+}
+
+@keyframes glitch{
+    0%{transform:translate(0);}
+    20%{transform:translate(-2px,2px);}
+    40%{transform:translate(-2px,-2px);}
+    60%{transform:translate(2px,2px);}
+    80%{transform:translate(2px,-2px);}
+    100%{transform:translate(0);}
+}
+
+.map{
+    margin-top:25px;
+    border-radius:20px;
+    overflow:hidden;
+    border:1px solid rgba(255,0,0,.4);
+}
+
+.map img{
+    width:100%;
+    display:block;
+    filter:contrast(1.1) brightness(.85);
+}
+
+.terminal{
+    margin-top:50px;
+    background:black;
+    border:1px solid #ff2a2a;
+    padding:35px;
+    border-radius:18px;
+    font-family:'Share Tech Mono';
+    box-shadow:0 0 35px rgba(255,0,0,.35);
+}
+
+.terminal h2{
+    color:#ff4a4a;
+    margin-bottom:25px;
+}
+
+.terminal ul{
+    line-height:2;
+    color:#ffd0d0;
+}
+
+.final{
+    margin-top:80px;
+    padding:80px 40px;
+    text-align:center;
+    background:black;
+    position:relative;
+    overflow:hidden;
+    border-top:3px solid red;
+}
+
+.final::before{
+    content:"SYSTEM OVERRIDE";
+    position:absolute;
+    inset:0;
+    font-size:120px;
+    color:rgba(255,0,0,.05);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Orbitron';
+    animation:glitch 1s infinite;
+}
+
+.final h1{
+    font-size:80px;
+    color:red;
+    text-shadow:0 0 25px red;
+    font-family:'Orbitron';
+    margin-bottom:30px;
+}
+
+.final p{
+    font-size:24px;
+    color:#ffb0b0;
+    margin:18px 0;
+}
+
+.big-warning{
+    margin-top:70px;
+    font-size:70px;
+    color:white;
+    text-shadow:
+    0 0 15px red,
+    0 0 35px red;
+    font-family:'Orbitron';
+    animation:blink .5s infinite;
+}
+
+.footer-noise{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.04;
+    background:url('https://i.imgur.com/8fK4h6T.gif');
+    mix-blend-mode:screen;
+}
+
+small{
+    opacity:.6;
+}
+
+@media(max-width:900px){
+    .final h1{
+        font-size:45px;
+    }
+
+    .big-warning{
+        font-size:38px;
+    }
+
+    .topbar{
+        flex-direction:column;
+        gap:15px;
+    }
+}
 </style>
 </head>
-<body class="crt-flicker">
-<div class="scanlines"></div>
 
-<!-- TOP STATUS BAR -->
-<div id="top-bar">
-  <div class="bar-logo">ctOS v2.1 // MZ.GOV.PL</div>
-  <div class="bar-separator">|</div>
-  <div class="infection-bar-wrap">
-    <div class="infection-label">POZIOM ZARAŻENIA: WARSZAWA-METRO</div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div class="infection-track" style="flex:1;">
-        <div class="infection-fill" id="infection-fill"></div>
-      </div>
-      <span class="infection-pct" id="infection-pct">0.3%</span>
-    </div>
-  </div>
-  <div class="bar-separator">|</div>
-  <div class="bar-alert alert-green" id="alert-green">● STAN NORMALNY</div>
-  <div class="bar-alert alert-yellow" id="alert-yellow">▲ STAN PODWYŻSZONY</div>
-  <div class="bar-alert alert-red" id="alert-red">⚠ STAN KRYTYCZNY</div>
-  <div class="bar-separator">|</div>
-  <div class="bar-time" id="clock">11-07-2009 &nbsp; 06:12:44</div>
+<body>
+
+<div class="footer-noise"></div>
+
+<header>
+
+<div class="topbar">
+
+<div class="logo">
+<img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Coat_of_arms_of_Poland-official.svg">
+<div>
+<h1>MINISTERSTWO ZDROWIA RP</h1>
+<small>ctOS Emergency Broadcast System — 11.07.2009</small>
+</div>
 </div>
 
-<!-- SITE HEADER -->
-<div id="site-header">
-  <svg class="gov-emblem" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="64" height="64" fill="#000e00"/>
-    <rect x="2" y="2" width="60" height="60" stroke="#00ff41" stroke-width="1" fill="none"/>
-    <path d="M32 8 L56 24 L56 40 L32 56 L8 40 L8 24 Z" stroke="#00cc33" stroke-width="1" fill="#001200"/>
-    <path d="M32 14 L50 25 L50 39 L32 50 L14 39 L14 25 Z" stroke="#004400" stroke-width="0.5" fill="none"/>
-    <text x="32" y="36" text-anchor="middle" font-family="Orbitron,monospace" font-size="11" font-weight="900" fill="#00ff41">MZ</text>
-    <text x="32" y="46" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="5" fill="#005500">MINISTERSTWO</text>
-  </svg>
-  <div class="header-text">
-    <div class="subtitle">RZECZPOSPOLITA POLSKA // SYSTEM INFORMACJI PUBLICZNEJ</div>
-    <h1>Ministerstwo Zdrowia</h1>
-    <div class="dept">KOMUNIKAT OFICJALNY NR 047/2009 — SYTUACJA EPIDEMIOLOGICZNA &nbsp;|&nbsp; DATA: 11.07.2009</div>
-  </div>
+<div class="system-icons">
+<span>📹 CCTV ACTIVE</span>
+<span>⚠ DEFCON 2</span>
+<span>📡 SIGNAL</span>
 </div>
 
-<!-- NAV -->
-<div id="nav-bar">
-  <div class="nav-item active">Komunikat</div>
-  <div class="nav-item">Epidemiologia</div>
-  <div class="nav-item">Służby Medyczne</div>
-  <div class="nav-item">Strefa Kwarantanny</div>
-  <div class="nav-item">Kontakt</div>
-  <div class="nav-item">Archiwum</div>
 </div>
 
-<!-- TICKER -->
-<div id="main">
-  <div class="ticker-wrap">
-    <div class="ticker-inner" id="ticker-text">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      ● KOMUNIKAT MZ 11.07.2009 ●
-      Sytuacja pod kontrolą — nie ma podstaw do niepokoju ●
-      Statek MS Batory w porcie gdańskim poddany kwarantannie jako środek ostrożności ●
-      Apelujemy o spokój i zaufanie służbom sanitarnym ●
-      Infolinia czynna całą dobę: 995 ●
-      Brak zagrożenia dla ludności cywilnej — potwierdzono źródło epidemii ●
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    </div>
-  </div>
-
-  <!-- SECTION 1 - INITIAL CALM -->
-  <div class="section" id="sec1">
-    <div class="section-header">
-      <div class="section-id">DOK-ID: MZ-047-A // KLASYFIKACJA: PUBLICZNY</div>
-      <h2>Komunikat Oficjalny — Incydent Sanitarny na Statku MS Batory</h2>
-    </div>
-    <div class="section-body">
-      <div class="callout ok">
-        <div class="callout-label">STATUS OGÓLNY</div>
-        Sytuacja jest STABILNA. Służby sanepidowe oraz Wojskowa Służba Zdrowia pracują zgodnie z protokołami WHO. Nie ma powodów do paniki.
-      </div>
-      <p>Ministerstwo Zdrowia Rzeczypospolitej Polskiej informuje, że w dniu 9 lipca 2009 r. na pokładzie statku handlowego MS Batory cumującego w Porcie Gdańskim stwierdzono przypadki choroby zakaźnej wśród marynarzy. Statek został niezwłocznie objęty pełną kwarantanną sanitarną zgodnie z procedurami międzynarodowymi.</p>
-      <p>Wstępne wyniki badań wskazują na szczep wirusa zbliżony do znanych patogenów oddechowych typu COVID. Choroba objawia się gorączką, dezorientacją oraz zmianami neurologicznymi. Objawy są poważne, jednak <strong style="color:#00ff41">nie odbiegają od znanych nam chorób zakaźnych</strong>.</p>
-      <div class="callout info">
-        <div class="callout-label">WYJAŚNIENIE NIEPOTWIERDZONYCH DONIESIEŃ</div>
-        Krążące w internecie nagrania przedstawiające "agresywne zachowanie" chorych są materiałem zmanipulowanym lub wyrwanm z kontekstu. Prosimy nie rozpowszechniać dezinformacji — grozi to odpowiedzialnością karną.
-      </div>
-      <p>Wszystkie osoby mające kontakt ze statkiem zostały zidentyfikowane i poddane obserwacji medycznej. Granica kwarantanny obejmuje obszar portu oraz 2 km strefę buforową. Sytuacja jest monitorowana przez ctOS w czasie rzeczywistym.</p>
-    </div>
-  </div>
-
-  <!-- SECTION 2 - STATS (PHASE 1 NORMAL) -->
-  <div class="section" id="sec2">
-    <div class="section-header">
-      <div class="section-id">DOK-ID: MZ-047-B // DANE EPIDEMIOLOGICZNE // AKTUALIZACJA: 11.07.2009 06:00</div>
-      <h2>Bieżące Dane Epidemiologiczne</h2>
-    </div>
-    <div class="section-body">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-num" id="stat1">47</span>
-          <div class="stat-label">Potwierdzonych przypadków</div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-num" id="stat2">312</span>
-          <div class="stat-label">Pod obserwacją</div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-num warn" id="stat3">3</span>
-          <div class="stat-label">Przypadki krytyczne</div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-num" id="stat4">98%</span>
-          <div class="stat-label">Strefa izolowana</div>
-        </div>
-      </div>
-      <div class="callout ok" id="gov-assurance-1">
-        <div class="callout-label">ZAPEWNIENIE RZĄDU RP</div>
-        Premier Donald Tusk oraz Minister Zdrowia zapewniają — służby są przygotowane. Sytuacja jest w pełni pod kontrolą. Obywatele mogą spokojnie prowadzić swoje codzienne życie.
-      </div>
-
-      <!-- PHASE 2 content - hidden initially -->
-      <div class="phase-2" id="phase2-stats">
-        <div class="callout warning" style="margin-top:12px;">
-          <div class="callout-label">AKTUALIZACJA 14:30 — KOREKTA DANYCH</div>
-          Dane zostały zweryfikowane. Liczba przypadków jest wyższa niż podano wcześniej — wynika to z rozszerzenia strefy monitoringu. NADAL NIE MA POWODÓW DO PANIKI. Rząd kontroluje sytuację.
-        </div>
-        <div class="stats-grid" style="margin-top:10px;">
-          <div class="stat-card">
-            <span class="stat-num warn" id="stat5">1.847</span>
-            <div class="stat-label">Potwierdzonych przypadków</div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num warn" id="stat6">12.440</span>
-            <div class="stat-label">Pod obserwacją</div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num danger" id="stat7">203</span>
-            <div class="stat-label">Przypadki krytyczne</div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-num warn" id="stat8">67%</span>
-            <div class="stat-label">Strefa izolowana</div>
-          </div>
-        </div>
-        <div class="callout warning">
-          <div class="callout-label">KOMUNIKAT — MINISTERSTWO SPRAW WEWNĘTRZNYCH</div>
-          Wprowadza się tymczasowe ograniczenia ruchu na terenie Dzielnicy Praga-Południe oraz Wawer jako środek prewencyjny. Wojsko Polskie wspomaga policję w utrzymaniu porządku. Proszę zachować spokój i stosować się do poleceń służb mundurowych.
-        </div>
-      </div>
-
-      <!-- PHASE 3 content - hidden initially -->
-      <div class="phase-3" id="phase3-stats">
-        <div class="callout" style="border-color:#ff5500;background:#0d0500;color:#ff8844;margin-top:12px;">
-          <div class="callout-label" style="color:#ff4400;">AKTUALIZACJA KRYTYCZNA — 22:15</div>
-          Ogłaszamy stan wyjątkowy na terenie m.st. Warszawy. Apelujemy o ZACHOWANIE SPOKOJU. Wojsko oraz służby medyczne pracują całą dobę. <strong style="color:#ffaa00">NIE BOJCIE SIĘ. JESTEŚCIE BEZPIECZNI.</strong> Rząd was chroni. Zostańcie w domach. Wszystko jest pod kontrolą. Nie wychodzić. NIE BOJCIE SIĘ. Powtarzamy — NIE MA POWODÓW DO PANIKI.
-        </div>
-        <div class="stats-grid" style="margin-top:10px;">
-          <div class="stat-card"><span class="stat-num danger">??? </span><div class="stat-label">Potwierdzonych</div></div>
-          <div class="stat-card"><span class="stat-num danger">DANE</span><div class="stat-label">Niedostępne</div></div>
-          <div class="stat-card"><span class="stat-num danger">ERR</span><div class="stat-label">Krytyczne</div></div>
-          <div class="stat-card"><span class="stat-num danger">12%</span><div class="stat-label">Kontrola strefy</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 3 - WHAT TO DO -->
-  <div class="section" id="sec3">
-    <div class="section-header">
-      <div class="section-id">DOK-ID: MZ-047-C // WYTYCZNE DLA OBYWATELI</div>
-      <h2>Zalecenia dla Obywateli — Postępowanie z Osobą Zarażoną</h2>
-    </div>
-    <div class="section-body">
-      <div class="callout warning">
-        <div class="callout-label">WAŻNE — PRZECZYTAJ UWAŻNIE</div>
-        Wirus przenosi się drogą kropelkową oraz przez kontakt z wydzielinami osoby zarażonej. Objawy: wysoka gorączka, dezorientacja, utrata kontroli nad zachowaniem, agresja. W przypadku podejrzenia zarażenia — NIE panikuj, działaj według poniższych procedur.
-      </div>
-      <ul class="rules-list">
-        <li>
-          <div>
-            <strong style="color:#00ff41;">KROK 1 — ZACHOWAJ DYSTANS</strong><br>
-            Natychmiast zachowaj odległość co najmniej 3 metrów od osoby wykazującej objawy. Nie dotykaj zarażonego. Nie próbuj pomagać bez właściwego wyposażenia ochronnego.
-          </div>
-        </li>
-        <li>
-          <div>
-            <strong style="color:#00ff41;">KROK 2 — ZADZWOŃ NA POGOTOWIE LUB INFOLINIĘ</strong><br>
-            Niezwłocznie zadzwoń pod numer <span class="number-badge">997</span> (Pogotowie Ratunkowe) lub na Rządową Infolinię Epidemiologiczną <span class="number-badge">995</span> czynną całą dobę. Podaj lokalizację oraz opis objawów.
-          </div>
-        </li>
-        <li>
-          <div>
-            <strong style="color:#00ff41;">KROK 3 — NIE OPUSZCZAJ MIEJSCA</strong><br>
-            Pozostań w miejscu do przyjazdu służb medycznych. Zamknij pomieszczenie, w którym przebywa zarażony, o ile jest to możliwe bez fizycznego kontaktu.
-          </div>
-        </li>
-        <li>
-          <div>
-            <strong style="color:#00ff41;">KROK 4 — NIE INFORMUJ MEDIÓW</strong><br>
-            Nie publikuj nagrań ani zdjęć w internecie — może to powodować panikę społeczną i utrudniać pracę służb. Wszelkie informacje przekazuj wyłącznie operatorowi infolinii 995.
-          </div>
-        </li>
-        <li>
-          <div>
-            <strong style="color:#00ff41;">KROK 5 — POCZEKAJ NA POMOC</strong><br>
-            Wykwalifikowane zespoły epidemiologiczne MEDEVAC dotrą do ciebie w ciągu 30 minut. Noś maskę ochronną jeśli masz dostęp. Myj ręce przez 20 sekund.
-          </div>
-        </li>
-      </ul>
-      <div class="callout ok" style="margin-top:14px;">
-        <div class="callout-label">PRZYPOMNIENIE</div>
-        Infolinia MZ: <strong style="color:#00ff41;font-size:16px;">995</strong> &nbsp;|&nbsp; Pogotowie: <strong style="color:#00ff41;font-size:16px;">997</strong> &nbsp;|&nbsp; Policja: <strong style="color:#00ff41;font-size:16px;">997</strong> &nbsp;|&nbsp; Straż Pożarna: <strong style="color:#00ff41;font-size:16px;">998</strong>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 4 - DEDSEC TAKEOVER (hidden initially) -->
-  <div id="dedsec-section">
-    <div class="dedsec-header">
-      <span class="dedsec-logo">▲ DEDSEC ▲</span>
-      <div class="dedsec-sub">// PRZEJĘCIE SYGNAŁU — NADAWANIE NA WSZYSTKICH KANAŁACH //</div>
-    </div>
-    <div class="dedsec-body">
-      <div class="dedsec-glitch" id="glitch-text">PRAWDA JEST WOLNA</div>
-      <div class="dedsec-warning">
-        <strong style="color:#ff0000;">⚠ UWAGA OBYWATELE WARSZAWY — TO NIE JEST RZĄDOWA TRANSMISJA ⚠</strong><br><br>
-        Przejęliśmy kontrolę nad systemem ctOS oraz wszystkimi kanałami informacji rządowej. Mamy dostęp do PRAWDZIWYCH danych. To, co rząd wam mówił przez ostatnie 48 godzin — to KŁAMSTWO.
-      </div>
-      <p>
-        <strong>Wirus na statku to nie jest "zwykły COVID".</strong> Mamy dowody z wewnętrznych serwerów Ministerstwa Zdrowia i Agencji Bezpieczeństwa Wewnętrznego. Szczep został sklasyfikowany jako ZV-9 — biologiczny patogen zmieniający zachowanie nosiciela na poziomie neurologicznym. Zainfekowane jednostki tracą zdolność rozumowania i atakują ludzi w pobliżu. Rząd wiedział o tym od początku.
-      </p>
-      <p>
-        <strong>Dlaczego kłamali?</strong> Bali się paniki. Liczyli że uda się zamknąć epidemię zanim wyjdzie na jaw. Nie udało się. Liczba zarażonych w Warszawie przekroczyła już <strong>40.000</strong>. System służby zdrowia jest na granicy wydolności. Strefy "kwarantanny" to w rzeczywistości tereny bez żadnej kontroli.
-      </p>
-      <div class="dedsec-warning">
-        <strong style="color:#ff4400;">CO RZĄD PLANUJE — MAMY DOKUMENTY:</strong><br><br>
-        <strong>1. OPERACJA "CZYSTY SLATE":</strong> Wojsko otrzymało rozkaz zbombardowania wszystkich "bąbli kwarantanny" w mieście — dzielnic Praga, Wawer, Białołęka, Ursus. Helikoptery militarne są już w gotowości przy lotnisku Bemowo.<br><br>
-        <strong>2. LOCKDOWN ABSOLUTNY:</strong> Wszystkie drzwi w systemie ctOS zostaną <strong>zablokowane na stałe</strong> — elektromagnetyczne zamki we wszystkich budynkach będą aktywowane centralnie. Nie będziesz mógł wyjść. Nie będziesz mógł uciec.<br><br>
-        <strong>3. ZNISZCZENIE MOSTÓW:</strong> Most Łazienkowski, Most Poniatowskiego, Most Świętokrzyski, Most Śląsko-Dąbrowski oraz Most Gdański zostaną wysadzone w powietrze o godzinie 04:00, aby wirus nie rozprzestrzenił się poza granice Warszawy. Bez ostrzeżenia dla mieszkańców.
-      </div>
-      <p>
-        <strong>Nasz cel nie jest zniszczenie — nasz cel to prawda.</strong> Nie mówcie wam żebyście dzwonili na 995. Dzwonienie na 997 ściągnie jednostki MEDEVAC które mają rozkaz eliminacji każdej "potencjalnej jednostki zarażonej" — czyli każdego, kto dzwoni.
-      </p>
-      <p>
-        <strong>CO ZROBIĆ TERAZ:</strong> Opuść Warszawę przed 03:00. Jedź na południe — drogi A1 i A4 są jeszcze otwarte. Nie korzystaj z metra — tunele będą zalane. Weź dokumenty, leki, gotówkę. Pomóż sąsiadom. Rząd was opuścił — zostaliście tylko wy.
-      </p>
-      <div class="dedsec-warning">
-        <strong style="color:#ff0000;">#DEDSEC #PRAWDAJESTWOLNA #WARSZAWA #ZV9 #OPERACJACZYSTYLATE</strong><br>
-        Transmisja zostanie zablokowana za kilka minut gdy rządowi hakerzy odzyskają kontrolę nad ctOS. Przekaż tę wiadomość dalej. Drukuj. Kopiuj. Dziel się.<br><br>
-        — DedSec PL / Warszawa Node
-      </div>
-      <div style="text-align:center;margin-top:16px;">
-        <div style="font-family:'VT323',monospace;font-size:14px;color:#440000;letter-spacing:2px;">
-          SYGNAŁ ZOSTANIE UTRACONY ZA: <span id="dedsec-timer" style="color:#ff4400;">3:00</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div id="site-footer">
-    <div style="color:#002200;margin-bottom:4px;">MINISTERSTWO ZDROWIA RZECZYPOSPOLITEJ POLSKIEJ // MIODOWA 15, 00-952 WARSZAWA</div>
-    <div>NIP: 525-19-18-787 // ctOS v2.1 // SERWIS DZIAŁA W TRYBIE SZYFROWANYM SSL-256 // © 2009 RZĄD RP</div>
-    <div style="margin-top:6px;color:#001500;">DANE OSOBOWE PRZETWARZANE ZGODNIE Z USTAWĄ O OCHRONIE DANYCH OSOBOWYCH Z DNIA 29 SIERPNIA 1997 R.</div>
-  </div>
+<div class="ticker">
+<span>
+Rząd RP informuje: sytuacja epidemiologiczna pozostaje pod kontrolą • Nie ma powodów do paniki • Wojsko prowadzi rutynowe działania sanitarne na terenie Warszawy • Obywatele proszeni są o pozostanie spokojnymi •
+</span>
 </div>
 
-<div class="ctOS-watermark">ctOS 2.1 // UBISOFT-PL TRIBUTE // FICTIONAL</div>
+</header>
 
-<!-- DEMO CONTROLS -->
-<div id="demo-controls">
-  <div style="font-size:9px;color:#003300;letter-spacing:1px;text-align:center;margin-bottom:2px;">SYMULACJA</div>
-  <button class="ctrl-btn" onclick="setPhase(1)">▶ Faza 1 — Spokój</button>
-  <button class="ctrl-btn" onclick="setPhase(2)">▶ Faza 2 — Eskalacja</button>
-  <button class="ctrl-btn" onclick="setPhase(3)">▶ Faza 3 — Kryzys</button>
-  <button class="ctrl-btn" onclick="setPhase(4)" style="border-color:#440000;color:#aa2200;">▲ DEDSEC PRZEJĄŁ</button>
+<div class="container">
+
+<section class="hero">
+
+<h2 class="section-title">KOMUNIKAT MINISTERSTWA ZDROWIA</h2>
+
+<p>
+Statek handlowy przybyły do portu w Gdyni został objęty standardową kontrolą sanitarną.
+Nie wykryto bezpośredniego zagrożenia dla ludności cywilnej.
+</p>
+
+<br>
+
+<p class="warning">
+Nie ma powodów do paniki.
+</p>
+
+<div class="progress-container">
+<div class="progress-label">
+STOPIEŃ ZAGROŻENIA BIOLOGICZNEGO
 </div>
 
-<script>
-var phase = 1;
-var infectionPct = 0.3;
-var dedsecTimerInterval = null;
-var clockInterval = null;
+<div class="progress">
+<div class="progress-bar"></div>
+</div>
+</div>
 
-var baseDate = new Date(2009, 6, 11, 6, 12, 44);
-var startTs = Date.now();
+<div class="grid">
 
-function updateClock() {
-  var elapsed = Math.floor((Date.now() - startTs) / 1000);
-  var d = new Date(baseDate.getTime() + elapsed * 1000);
-  var pad = function(n){return n<10?'0'+n:n;};
-  var dateStr = pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
-  var timeStr = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-  document.getElementById('clock').innerHTML = dateStr + ' &nbsp; ' + timeStr;
-}
+<div class="card">
+<img src="https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=1200&auto=format&fit=crop">
+<div class="card-content">
+<h3>Oddziały sanitarne</h3>
+<p>
+Warszawskie szpitale pozostają w pełni operacyjne.
+</p>
+</div>
+</div>
 
-clockInterval = setInterval(updateClock, 1000);
+<div class="card">
+<img src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=1200&auto=format&fit=crop">
+<div class="card-content">
+<h3>Badania laboratoryjne</h3>
+<p>
+Trwają analizy nowego szczepu wirusa wykrytego na północy kraju.
+</p>
+</div>
+</div>
 
-function setInfection(pct, labelStr) {
-  document.getElementById('infection-fill').style.width = pct + '%';
-  document.getElementById('infection-pct').textContent = labelStr;
-}
+<div class="card">
+<div class="chart"></div>
+<div class="card-content">
+<h3>Wykres zachorowań</h3>
+<p>
+Liczba przypadków pozostaje stabilna.
+</p>
+</div>
+</div>
 
-function setPhase(p) {
-  phase = p;
+</div>
 
-  document.querySelectorAll('.phase-2').forEach(function(el){el.style.display='none';});
-  document.querySelectorAll('.phase-3').forEach(function(el){el.style.display='none';});
-  document.getElementById('dedsec-section').style.display = 'none';
+</section>
 
-  document.getElementById('alert-green').style.display='none';
-  document.getElementById('alert-yellow').style.display='none';
-  document.getElementById('alert-red').style.display='none';
+<section class="alert-section glitch">
 
-  if (dedsecTimerInterval) { clearInterval(dedsecTimerInterval); dedsecTimerInterval=null; }
+<h2 class="section-title warning">
+AKTUALIZACJA SYSTEMU MONITORINGU
+</h2>
 
-  if (p === 1) {
-    setInfection(0.5, '0.3%');
-    document.getElementById('alert-green').style.display='inline-block';
-    document.getElementById('ticker-text').textContent =
-      '     ● KOMUNIKAT MZ 11.07.2009 ● Sytuacja pod kontrolą — nie ma podstaw do niepokoju ● Statek MS Batory w porcie gdańskim poddany kwarantannie ● Apelujemy o spokój i zaufanie służbom ● Infolinia: 995 ●     ';
-    document.body.style.background = '#000a00';
-    document.getElementById('dedsec-section').style.display='none';
-  }
+<p>
+Prosimy obywateli o pozostanie w domach po godzinie 22:00.
+</p>
 
-  if (p === 2) {
-    setInfection(22, '4.7%');
-    document.getElementById('alert-yellow').style.display='inline-block';
-    document.querySelectorAll('.phase-2').forEach(function(el){el.style.display='block';});
-    document.getElementById('ticker-text').textContent =
-      '     ● AKTUALIZACJA 14:30 ● Rozszerzono strefę kwarantanny do całej dzielnicy Praga-Południe ● NIE MA POWODÓW DO PANIKI ● Wojsko wspomaga policję — to środek prewencyjny ● Rząd kontroluje sytuację ● Zostań w domu ● 997 / 995 ●     ';
-    document.body.style.background = '#020800';
-  }
+<br>
 
-  if (p === 3) {
-    setInfection(58, '18.3%');
-    document.getElementById('alert-red').style.display='inline-block';
-    document.querySelectorAll('.phase-2').forEach(function(el){el.style.display='block';});
-    document.querySelectorAll('.phase-3').forEach(function(el){el.style.display='block';});
-    document.getElementById('ticker-text').textContent =
-      '     ● STAN WYJĄTKOWY ● NIE BOJCIE SIĘ ● Zostańcie w domach ● NIE WYCHODZIĆ ● NIE MA POWODÓW DO PANIKI ● Wojsko na ulicach Warszawy ● NIE BOJCIE SIĘ ● BEZPIECZNI JESTEŚCIE ● NIE BOJCIE SIĘ ● 995 ●     ';
-    document.body.style.background = '#050200';
-  }
+<p class="warning">
+Nie zbliżać się do osób wykazujących agresję lub oznaki dezorientacji.
+</p>
 
-  if (p === 4) {
-    setInfection(78, '???');
-    document.getElementById('alert-red').style.display='inline-block';
-    document.querySelectorAll('.phase-2').forEach(function(el){el.style.display='block';});
-    document.querySelectorAll('.phase-3').forEach(function(el){el.style.display='block';});
-    document.getElementById('dedsec-section').style.display='block';
-    document.getElementById('ticker-text').textContent =
-      '     ▲ DEDSEC TRANSMISJA ▲ RZĄD KŁAMAŁ ▲ OPERACJA CZYSTY SLATE ▲ MOSTY ZOSTANĄ ZNISZCZONE ▲ UCIEKAJCIE ▲ PRAWDA JEST WOLNA ▲ #DEDSEC #WARSZAWA ▲     ';
-    document.body.style.background = '#0d0000';
-    document.getElementById('infection-fill').style.background = '#ff0000';
-    document.getElementById('infection-pct').style.color = '#ff0000';
-    startDedsecTimer(180);
-    document.getElementById('dedsec-section').scrollIntoView({behavior:'smooth',block:'start'});
-  }
-}
+<br>
 
-function startDedsecTimer(sec) {
-  var remaining = sec;
-  dedsecTimerInterval = setInterval(function(){
-    remaining--;
-    if (remaining < 0) { remaining = 0; clearInterval(dedsecTimerInterval); }
-    var m = Math.floor(remaining/60);
-    var s = remaining % 60;
-    var el = document.getElementById('dedsec-timer');
-    if (el) el.textContent = m + ':' + (s<10?'0':'')+s;
-  }, 1000);
-}
+<p>
+Wojsko zabezpiecza wybrane dzielnice Warszawy.
+</p>
 
-var glitchTexts = ['PRAWDA JEST WOLNA','ZV-9 ISTNIEJE','RZĄD KŁAMIE','UCIEKAJCIE','DEDSEC JEST WSZĘDZIE','04:00 MOSTY'];
-var gi = 0;
-setInterval(function(){
-  var el = document.getElementById('glitch-text');
-  if (el && document.getElementById('dedsec-section').style.display !== 'none') {
-    gi = (gi+1) % glitchTexts.length;
-    el.textContent = glitchTexts[gi];
-  }
-}, 1800);
+<div class="progress-container">
+<div class="progress-label">
+ROZPRZESTRZENIANIE INFEKCJI
+</div>
 
-setPhase(1);
-</script>
+<div class="progress">
+<div class="progress-bar" style="width:72%; background:linear-gradient(90deg,#ff9900,#ff0000);"></div>
+</div>
+</div>
+
+<div class="map">
+<img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1600&auto=format&fit=crop">
+</div>
+
+<div class="grid">
+
+<div class="card glitch">
+<img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop">
+<div class="card-content">
+<h3 class="warning">CCTV — Śródmieście</h3>
+<p>
+Wykryto anomalie ruchu ulicznego.
+</p>
+</div>
+</div>
+
+<div class="card glitch">
+<img src="https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200&auto=format&fit=crop">
+<div class="card-content">
+<h3 class="warning">CCTV — Metro Centrum</h3>
+<p>
+Połączenie utracone.
+</p>
+</div>
+</div>
+
+</div>
+
+</section>
+
+<section class="terminal">
+
+<h2>PROCEDURY KRYZYSOWE — SYSTEM WOJSKOWY</h2>
+
+<ul>
+<li>▶ W przypadku kontaktu z zakażonym natychmiast zadzwonić pod numer 997</li>
+<li>▶ Infolinia kryzysowa: 995</li>
+<li>▶ Nie otwierać drzwi nieznajomym</li>
+<li>▶ Unikać transportu publicznego</li>
+<li>▶ Zgłaszać agresywne zachowania</li>
+<li>▶ Nie ufać nieoficjalnym źródłom informacji</li>
+<li>▶ Pozostać w miejscu zamieszkania do odwołania</li>
+</ul>
+
+</section>
+
+<section class="final glitch">
+
+<h1>DEDSEC // SYSTEM OVERRIDE</h1>
+
+<p>Rząd utracił kontrolę nad Warszawą.</p>
+<p>Mosty zostaną zniszczone.</p>
+<p>Miasto zostanie zamknięte na zawsze.</p>
+<p>Bombardowanie rozpocznie się o świcie.</p>
+
+<br><br>
+
+<p class="warning">
+[ SYSTEM ERROR ] CONNECTION LOST...
+</p>
+
+<p class="warning">
+[ CCTV NETWORK FAILURE ]
+</p>
+
+<p class="warning">
+[ ctOS KERNEL PANIC ]
+</p>
+
+<div class="big-warning">
+NIE UFAJ OFICJALNYM KOMUNIKATOM
+</div>
+
+</section>
+
+</div>
+
 </body>
 </html>
