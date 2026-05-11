@@ -1,384 +1,318 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ministerstwo Zdrowia — Komunikat Kryzysowy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ministerstwo Zdrowia RP - System Informacyjny ctOS v0.9</title>
+    <style>
+        /* Styl ogólny - Retro CRT/Terminal */
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            color: #00cc00;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+        }
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        /* Efekt starych monitorów CRT (Scanlines) */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
 
-body{
-    background:#060b0d;
-    color:#8fffe0;
-    font-family:'Share Tech Mono', monospace;
-    overflow-x:hidden;
-}
+        /* Pasek informacyjny rządu */
+        .top-bar {
+            border: 2px solid #00cc00;
+            background-color: #002200;
+            padding: 5px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        
+        marquee {
+            color: #ff3333;
+            font-weight: bold;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
 
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:
-    repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.03),
-        rgba(255,255,255,0.03) 1px,
-        transparent 2px,
-        transparent 4px
-    );
-    pointer-events:none;
-    animation:flicker .15s infinite;
-}
+        /* Pasek postępu wirusa */
+        .virus-tracker {
+            background: #111;
+            border: 1px solid #ffcc00;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
 
-@keyframes flicker{
-    0%{opacity:.95;}
-    50%{opacity:1;}
-    100%{opacity:.93;}
-}
+        .virus-header {
+            display: flex;
+            justify-content: space-between;
+            color: #ffcc00;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
 
-.topbar{
-    background:#08161a;
-    border-bottom:2px solid #00ffd0;
-    padding:15px;
-    position:sticky;
-    top:0;
-    z-index:999;
-    box-shadow:0 0 25px rgba(0,255,208,.3);
-}
+        .progress-box {
+            width: 100%;
+            height: 25px;
+            background-color: #222;
+            border: 1px solid #555;
+            position: relative;
+        }
 
-.logo{
-    font-size:28px;
-    letter-spacing:3px;
-    color:#00ffd0;
-    text-shadow:0 0 10px #00ffd0;
-}
+        .progress-fill {
+            height: 100%;
+            width: 12%;
+            background-color: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+            transition: width 8s cubic-bezier(0.4, 0, 1, 1);
+        }
 
-.gov{
-    font-size:13px;
-    margin-top:5px;
-    opacity:.8;
-}
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 2px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
 
-.progressBox{
-    margin-top:15px;
-}
+        /* Treść główna - logi Ministerstwa */
+        h1 {
+            border-bottom: 2px solid #00cc00;
+            padding-bottom: 10px;
+            text-shadow: 0 0 5px #00cc00;
+        }
 
-.progressText{
-    margin-bottom:8px;
-    color:#ff5555;
-}
+        .log {
+            margin-bottom: 25px;
+            padding-left: 15px;
+            border-left: 4px solid #005500;
+        }
 
-.progress{
-    width:100%;
-    height:24px;
-    background:#111;
-    border:1px solid #00ffd0;
-    overflow:hidden;
-}
+        .log-date {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
 
-.progressFill{
-    height:100%;
-    width:8%;
-    background:linear-gradient(90deg,#00ffd0,#00ff88,#ffd500,#ff0000);
-    animation:virus 25s linear forwards;
-}
+        .log-calm { color: #00cc00; }
+        .log-warn { color: #ffaa00; }
+        .log-panic { color: #ff4444; font-weight: bold; }
 
-@keyframes virus{
-    0%{width:8%;}
-    20%{width:18%;}
-    40%{width:36%;}
-    60%{width:57%;}
-    80%{width:82%;}
-    100%{width:100%;}
-}
+        .rules {
+            background-color: #1a0000;
+            border: 2px dashed #ff0000;
+            padding: 20px;
+            margin-top: 40px;
+            color: #ffcccc;
+        }
 
-.container{
-    width:90%;
-    max-width:1200px;
-    margin:auto;
-    padding:30px 0;
-}
+        .rules h2 {
+            color: #ff0000;
+            margin-top: 0;
+            text-transform: uppercase;
+        }
 
-.panel{
-    border:1px solid rgba(0,255,208,.4);
-    background:rgba(0,20,25,.55);
-    margin-bottom:25px;
-    padding:25px;
-    box-shadow:0 0 20px rgba(0,255,208,.15);
-    position:relative;
-}
+        /* Sekcja DedSec - Początkowo ukryta */
+        #dedsec-container {
+            display: none;
+            margin-top: 60px;
+            padding: 30px;
+            background-color: #000;
+            border: 2px solid #9900ff;
+            color: #fff;
+            box-shadow: 0 0 30px rgba(153, 0, 255, 0.4);
+            position: relative;
+        }
 
-.panel::after{
-    content:"CTOS://POL-GOV-NET";
-    position:absolute;
-    top:10px;
-    right:15px;
-    font-size:10px;
-    opacity:.4;
-}
+        .ascii-art {
+            color: #9900ff;
+            text-align: center;
+            white-space: pre;
+            font-size: 14px;
+            line-height: 14px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #9900ff;
+        }
 
-h1,h2{
-    margin-bottom:15px;
-    color:#00ffd0;
-    text-shadow:0 0 10px #00ffd0;
-}
+        .dedsec-text {
+            font-size: 1.2em;
+            text-align: center;
+            color: #ff0055;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
 
-.warning{
-    color:#ff4d4d;
-    animation:blink 1s infinite;
-}
+        .dedsec-text p {
+            margin: 15px 0;
+            text-shadow: 2px 2px 0px #000, -1px -1px 0px #00ffff;
+        }
 
-@keyframes blink{
-    50%{opacity:.4;}
-}
+        .glitch {
+            animation: glitch-anim 0.2s infinite;
+        }
 
-.news{
-    margin-top:15px;
-    border-left:3px solid #00ffd0;
-    padding-left:15px;
-    line-height:1.8;
-}
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-3px, 1px) }
+            40% { transform: translate(-1px, -1px) }
+            60% { transform: translate(3px, 1px) }
+            80% { transform: translate(1px, -1px) }
+            100% { transform: translate(0) }
+        }
 
-.timeline{
-    display:grid;
-    gap:20px;
-}
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
 
-.entry{
-    padding:18px;
-    border:1px solid rgba(255,255,255,.15);
-    background:rgba(0,0,0,.35);
-}
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
 
-.entry .date{
-    color:#00ffd0;
-    margin-bottom:10px;
-}
-
-.red{
-    color:#ff5a5a;
-}
-
-.yellow{
-    color:#ffd34d;
-}
-
-.footerAlert{
-    margin-top:40px;
-    border:2px solid red;
-    background:black;
-    padding:30px;
-    position:relative;
-    overflow:hidden;
-}
-
-.glitch{
-    color:red;
-    font-size:30px;
-    margin-bottom:20px;
-    position:relative;
-    animation:glitch 0.2s infinite;
-}
-
-@keyframes glitch{
-    0%{left:0;}
-    25%{left:2px;}
-    50%{left:-2px;}
-    75%{left:3px;}
-    100%{left:-1px;}
-}
-
-.dedsec{
-    color:#ff0000;
-    text-shadow:0 0 10px red;
-    line-height:1.9;
-}
-
-.terminal{
-    margin-top:25px;
-    background:#020202;
-    border:1px solid #00ff00;
-    padding:20px;
-    color:#00ff00;
-    font-size:14px;
-    line-height:1.8;
-}
-
-.scanline{
-    animation:scan 8s linear infinite;
-}
-
-@keyframes scan{
-    0%{transform:translateY(-100%);}
-    100%{transform:translateY(100vh);}
-}
-
-.scanline{
-    position:fixed;
-    width:100%;
-    height:120px;
-    background:linear-gradient(
-    to bottom,
-    transparent,
-    rgba(0,255,200,.06),
-    transparent
-    );
-    pointer-events:none;
-}
-
-.small{
-    font-size:13px;
-    opacity:.7;
-}
-</style>
+    </style>
 </head>
 <body>
 
-<div class="scanline"></div>
-
-<div class="topbar">
-    <div class="logo">MINISTERSTWO ZDROWIA // ctOS GOVNET</div>
-    <div class="gov">
-        Rząd Rzeczypospolitej Polskiej — System monitoringu epidemiologicznego Warszawa 11.07.2009
-    </div>
-
-    <div class="progressBox">
-        <div class="progressText">POSTĘP ZAKAŻENIA WIRUSEM: MONITORING...</div>
-        <div class="progress">
-            <div class="progressFill"></div>
-        </div>
-    </div>
-</div>
-
 <div class="container">
+    
+    <!-- Pasek informacyjny (Marquee) -->
+    <div class="top-bar">
+        <marquee scrollamount="8">
+            MINISTERSTWO ZDROWIA RP *** STATUS: ALARMOWY *** PROSIMY O ZACHOWANIE SPOKOJU *** TO TYLKO ZWYKŁA EPIDEMIA *** ZOSTANIE OPUBLIKOWANY NOWY KOMUNIKAT *** RZĄD PANUJE NAD SYTUACJĄ ***
+        </marquee>
+    </div>
 
-    <div class="panel">
-        <h1>KOMUNIKAT PAŃSTWOWY</h1>
-
-        <div class="news">
-            Ministerstwo Zdrowia informuje, że statek handlowy przybyły do portu w Gdańsku został objęty rutynową kontrolą sanitarną.
-            <br><br>
-            Według służb sytuacja pozostaje stabilna i nie ma powodów do paniki.
-            <br><br>
-            Wykryte przypadki przypominają sezonową odmianę wirusa grypowego.
+    <!-- Pasek postępu wirusa -->
+    <div class="virus-tracker">
+        <div class="virus-header">
+            <span>CTOS // MONITORING BIOLOGICZNY - OBSZAR: WARSZAWA</span>
+            <span class="blink" style="color:red;">ZAGROŻENIE KRYTYCZNE</span>
+        </div>
+        <div class="progress-box">
+            <div class="progress-fill" id="virus-bar"></div>
+            <div class="progress-text" id="virus-percent">Poziom rozprzestrzeniania: 12%</div>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>AKTUALIZACJE SYSTEMU ctOS</h2>
+    <!-- Rządowe komunikaty -->
+    <div id="gov-content">
+        <h1>Biuletyn Informacyjny - 11 Lipca 2009</h1>
 
-        <div class="timeline">
+        <div class="log log-calm">
+            <div class="log-date">08:15 | ZGŁOSZENIE #001</div>
+            <p>Obywatele. Informujemy o incydencie medycznym na statku handlowym "Tarnów". Sytuacja jest ustabilizowana. Wstępne analizy wskazują na wyizolowaną mutację – to po prostu epidemia wirusa typu COVID. Nie ma najmniejszych powodów do obaw. Służby medyczne rutynowo kwarantannują załogę.</p>
+        </div>
 
-            <div class="entry">
-                <div class="date">11.07.2009 — 08:12</div>
-                Wykryto pierwsze przypadki agresywnej gorączki u załogi statku.
-                Służby twierdzą, że sytuacja została opanowana.
-            </div>
+        <div class="log log-warn">
+            <div class="log-date">14:40 | ZGŁOSZENIE #084</div>
+            <p>Odnotowano zwiększoną liczbę hospitalizacji. Bardzo prosimy o nieszerzenie plotek w internecie. Rząd stanowczo dementuje nagrania z kamer miejskich ctOS. NIE NALEŻY SIĘ BAĆ. Służby porządkowe używają siły wyłącznie wobec osób stawiających opór medyczny. Pozostańcie w domach.</p>
+        </div>
 
-            <div class="entry">
-                <div class="date">11.07.2009 — 13:44</div>
-                Kilka oddziałów szpitalnych zostało zamkniętych.
-                <span class="yellow">Rząd apeluje o spokój.</span>
-            </div>
+        <div class="log log-panic">
+            <div class="log-date">19:55 | ZGŁOSZENIE #892</div>
+            <p>ZACHOWAĆ ABSOLUTNY SPOKÓJ! Wojsko na ulicach ma charakter wyłącznie prewencyjny. Agresywne zachowania pacjentów wynikają z gorączki, a nie z mitycznych chorób! Przestańcie udostępniać filmy z rzekomymi atakami. Rząd kontroluje sytuację w 100%. Zamknięcie granic miasta jest tymczasowe.</p>
+        </div>
 
-            <div class="entry">
-                <div class="date">12.07.2009 — 00:22</div>
-                Nagrania z monitoringu wskazują na gwałtowne ataki zakażonych osób.
-                Materiały zostały sklasyfikowane jako FAŁSZYWE.
-            </div>
-
-            <div class="entry">
-                <div class="date">12.07.2009 — 06:01</div>
-                <span class="warning">PROSIMY NIE OPUSZCZAĆ DOMÓW.</span>
-                <br><br>
-                Nie patrzcie na media społecznościowe.
-                Nie rozpowszechniajcie niepotwierdzonych informacji.
-            </div>
-
-            <div class="entry">
-                <div class="date">12.07.2009 — 09:52</div>
-                Wojsko zostało rozmieszczone na mostach Warszawy.
-                <span class="red">To tylko środek zapobiegawczy.</span>
-            </div>
-
-            <div class="entry">
-                <div class="date">12.07.2009 — 12:31</div>
-                Rząd zapewnia:
-                <br><br>
-                „Nie istnieje zagrożenie biologiczne wymykające się spod kontroli.”
-            </div>
-
+        <div class="rules">
+            <h2>!!! PROCEDURY BEZPIECZEŃSTWA !!!</h2>
+            <p>W przypadku napotkania osoby zakażonej (objawy: martwica skóry, niekontrolowana i skrajna agresja, brak reakcji na bodźce bólowe, rzucanie się na innych):</p>
+            <ul>
+                <li><strong>NIE ZBLIŻAĆ SIĘ!</strong> Zakażenie przenosi się przez ugryzienia i kontakt z krwią.</li>
+                <li>Barykadujcie drzwi i okna w swoich mieszkaniach.</li>
+                <li>Natychmiast zadzwoń na Policję: <strong>997</strong></li>
+                <li>LUB skontaktuj się ze specjalną infolinią kryzysową ctOS: <strong>995</strong></li>
+            </ul>
         </div>
     </div>
 
-    <div class="panel">
-        <h2>ZASADY BEZPIECZEŃSTWA</h2>
-
-        <div class="news">
-            • Nie zbliżaj się do osób agresywnych lub zakrwawionych.
-            <br><br>
-            • W przypadku kontaktu z zakażonym natychmiast zadzwoń pod numer 997.
-            <br><br>
-            • Infolinia kryzysowa: 995
-            <br><br>
-            • Zamknij drzwi i okna.
-            <br><br>
-            • Nie próbuj opuszczać Warszawy.
+    <!-- Przejęcie przez DedSec -->
+    <div id="dedsec-container">
+        <div class="ascii-art glitch">
+   .d8888b.  
+  d88P  Y88b 
+  888    888 
+  888        
+  888  88888 
+  888    888 
+  Y88b  d88P 
+   "Y8888P88 
+=============
+D E D S E C
+=============
         </div>
-    </div>
-
-    <div class="footerAlert">
-
-        <div class="glitch">
-            [ SYSTEM PRZEJĘTY ]
+        <div class="dedsec-text">
+            <h1 style="color: #9900ff; border-color: #9900ff;">/// SYSTEM OVERRIDE ///</h1>
+            <p class="glitch" style="color: #fff;">PRZESTAŃCIE CZYTAĆ TE BZDURY.</p>
+            <p>Rząd was okłamuje. To nie jest zwykła epidemia i żaden wirus typu covid. Prawda jest o wiele gorsza.</p>
+            <p>Wirus ożywia martwe komórki. Zmarli wstają, a zakażenie rośnie wykładniczo.</p>
+            <p style="color: #00ffff;">Nie panują nad niczym. Spisali was na straty.</p>
+            <p class="glitch">O PÓŁNOCY ZBOMBARDUJĄ WSZYSTKIE DZIELNICE WARSZAWY.</p>
+            <p>System ctOS ma zaprogramowaną dyrektywę "Kwarantanna Zero". Za kilka minut zamkną WSZYSTKIE elektroniczne drzwi i bramy na zawsze. Użyją ładunków wybuchowych, aby ZNISZCZYĆ WSZYSTKIE MOSTY.</p>
+            <p style="color: #fff;">Zostawili was na rzeź, żeby wirus nie wydostał się poza stolicę.</p>
+            <p class="blink">OBUDŹCIE SIĘ. UCIEKAJCIE Z MIASTA, PÓKI MOŻECIE.</p>
+            <p style="font-size: 0.8em; color: #666; margin-top: 30px;">Zjednoczcie się. ~DedSec</p>
         </div>
-
-        <div class="dedsec">
-            DEDSEC: PRZESTAŃCIE WIERZYĆ RZĄDOWI.
-            <br><br>
-            TO NIE JEST ZWYKŁA EPIDEMIA.
-            <br><br>
-            MIASTO ZOSTAŁO SKAZANE.
-            <br><br>
-            MOSTY ZOSTANĄ ZNISZCZONE.
-            <br><br>
-            WSZYSTKIE WYJŚCIA Z WARSZAWY ZOSTANĄ ZAMKNIĘTE.
-            <br><br>
-            ARMIA MA ROZKAZ ELIMINACJI STREF ZAKAŻENIA.
-            <br><br>
-            JEŚLI TO CZYTASZ — UCIEKAJ.
-        </div>
-
-        <div class="terminal">
-            > ctOS root access granted...
-            <br>
-            > military_protocol.exe initialized
-            <br>
-            > bridge_destruction_sequence = TRUE
-            <br>
-            > quarantine_level = OMEGA
-            <br>
-            > civilian_survival_probability = 3%
-            <br>
-            > transmission outside Warsaw imminent...
-            <br>
-            > GOD HELP US
-        </div>
-
-    </div>
-
-    <div class="small" style="margin-top:40px;">
-        © Ministerstwo Zdrowia RP — GOVNET ctOS 2009
     </div>
 
 </div>
+
+<script>
+    // Skrypt animujący rozprzestrzenianie się wirusa i hakowanie strony przez DedSec
+    window.onload = function() {
+        const virusBar = document.getElementById('virus-bar');
+        const virusPercent = document.getElementById('virus-percent');
+        const dedsecContainer = document.getElementById('dedsec-container');
+        const govContent = document.getElementById('gov-content');
+
+        // Pasek postępu szybko idzie w górę
+        setTimeout(() => {
+            virusBar.style.width = '98%';
+            let counter = 12;
+            const interval = setInterval(() => {
+                counter += 2;
+                if(counter >= 98) {
+                    counter = 98;
+                    clearInterval(interval);
+                }
+                virusPercent.innerText = `Poziom rozprzestrzeniania: ${counter}% - BRAK KONTROLI`;
+            }, 150);
+        }, 1000);
+
+        // Po 7 sekundach czytania, DedSec przejmuje stronę
+        setTimeout(() => {
+            // Efekt zepsucia interfejsu rządu
+            govContent.style.opacity = '0.2';
+            govContent.classList.add('glitch');
+            
+            // Pojawienie się komunikatu hakerów
+            dedsecContainer.style.display = 'block';
+            
+            // Ekran scrolluje do prawdy
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 7000);
+    };
+</script>
 
 </body>
 </html>
