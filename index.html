@@ -1,735 +1,267 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>WZK // ctOS Media Network</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-:root{
-    --bg:#070b11;
-    --glass:rgba(18,25,35,.72);
-    --border:rgba(100,180,255,.18);
-    --blue:#6fd6ff;
-    --cyan:#00e5ff;
-    --red:#ff3c52;
-    --green:#00ff9f;
-    --white:#dce7f0;
-}
-
-body{
-    background:#02050a;
-    overflow-x:hidden;
-    color:white;
-    font-family:'Orbitron',sans-serif;
-}
-
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:
-    repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,.03),
-        rgba(255,255,255,.03) 1px,
-        transparent 1px,
-        transparent 3px
-    );
-    mix-blend-mode:overlay;
-    pointer-events:none;
-    z-index:99999;
-    animation:flicker .15s infinite;
-}
-
-body::after{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:
-    radial-gradient(circle at center,transparent 0%,rgba(0,0,0,.45) 100%);
-    pointer-events:none;
-    z-index:9999;
-}
-
-@keyframes flicker{
-    0%{opacity:.6}
-    50%{opacity:.4}
-    100%{opacity:.7}
-}
-
-video,
-img{
-    max-width:100%;
-}
-
-#noise{
-    position:fixed;
-    inset:0;
-    background:url("https://i.imgur.com/8K4L7wS.png");
-    opacity:.03;
-    z-index:1;
-    pointer-events:none;
-}
-
-header{
-    position:sticky;
-    top:0;
-    z-index:1000;
-    backdrop-filter:blur(14px);
-    background:rgba(5,10,16,.75);
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:18px 30px;
-}
-
-.logo{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
-
-.logo h1{
-    font-size:2rem;
-    color:var(--cyan);
-    letter-spacing:5px;
-    text-shadow:0 0 20px var(--cyan);
-}
-
-.logo span{
-    color:#89a8bc;
-    font-size:.8rem;
-}
-
-.status{
-    display:flex;
-    gap:25px;
-    font-size:.8rem;
-    color:#86c5dd;
-}
-
-.status div{
-    position:relative;
-}
-
-.status div::before{
-    content:"";
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:#00ff7f;
-    position:absolute;
-    left:-15px;
-    top:5px;
-    box-shadow:0 0 12px #00ff7f;
-}
-
-.hero{
-    height:60vh;
-    position:relative;
-    overflow:hidden;
-}
-
-.hero video{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    filter:brightness(.4) contrast(1.2);
-}
-
-.overlay{
-    position:absolute;
-    inset:0;
-    background:
-    linear-gradient(to bottom,rgba(0,0,0,.2),rgba(0,0,0,.8));
-}
-
-.heroContent{
-    position:absolute;
-    bottom:40px;
-    left:40px;
-    z-index:2;
-}
-
-.heroContent h2{
-    font-size:3rem;
-    max-width:900px;
-    text-shadow:0 0 25px black;
-}
-
-.heroContent p{
-    margin-top:15px;
-    color:#8dc5e2;
-    font-size:1rem;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:20px;
-    padding:25px;
-}
-
-.card{
-    background:var(--glass);
-    border:1px solid var(--border);
-    backdrop-filter:blur(20px);
-    border-radius:20px;
-    padding:20px;
-    position:relative;
-    overflow:hidden;
-    box-shadow:
-    0 0 30px rgba(0,200,255,.08),
-    inset 0 0 20px rgba(255,255,255,.02);
-}
-
-.card::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(120deg,transparent,rgba(255,255,255,.04),transparent);
-    transform:translateX(-100%);
-    animation:scan 6s linear infinite;
-}
-
-@keyframes scan{
-    to{
-        transform:translateX(100%);
-    }
-}
-
-.card h3{
-    margin-bottom:20px;
-    color:var(--cyan);
-}
-
-.newsItem{
-    padding:15px 0;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.newsItem:last-child{
-    border-bottom:none;
-}
-
-.newsItem h4{
-    margin-bottom:8px;
-    color:white;
-}
-
-.newsItem p{
-    color:#9eb0bf;
-    font-size:.92rem;
-    line-height:1.6;
-}
-
-.sidebar{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-}
-
-.live{
-    position:relative;
-}
-
-.live img{
-    width:100%;
-    border-radius:12px;
-    filter:contrast(1.2);
-}
-
-.liveTag{
-    position:absolute;
-    top:12px;
-    left:12px;
-    background:red;
-    padding:6px 12px;
-    border-radius:30px;
-    font-size:.75rem;
-    animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-    0%{opacity:1}
-    50%{opacity:.5}
-    100%{opacity:1}
-}
-
-.ticker{
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    background:black;
-    border-top:1px solid rgba(255,255,255,.15);
-    overflow:hidden;
-    z-index:999999;
-    height:45px;
-    display:flex;
-    align-items:center;
-}
-
-.tickerText{
-    white-space:nowrap;
-    animation:ticker 30s linear infinite;
-    color:#00d5ff;
-    font-family:'Share Tech Mono',monospace;
-    font-size:1rem;
-}
-
-@keyframes ticker{
-    from{transform:translateX(100%)}
-    to{transform:translateX(-100%)}
-}
-
-.glitch{
-    animation:glitch .12s infinite;
-}
-
-@keyframes glitch{
-    0%{
-        transform:translate(0);
-        filter:hue-rotate(0deg);
-    }
-    20%{
-        transform:translate(-2px,2px);
-    }
-    40%{
-        transform:translate(2px,-2px);
-    }
-    60%{
-        transform:translate(-1px,1px);
-        filter:hue-rotate(90deg);
-    }
-    100%{
-        transform:translate(0);
-    }
-}
-
-.alert{
-    background:rgba(255,0,0,.1);
-    border:1px solid rgba(255,0,0,.4);
-    color:#ff7a7a;
-    padding:15px;
-    margin-top:15px;
-    font-size:.9rem;
-}
-
-.terminal{
-    margin-top:30px;
-    background:black;
-    border:1px solid rgba(255,255,255,.15);
-    padding:20px;
-    min-height:240px;
-    font-family:'Share Tech Mono',monospace;
-    color:#00ff95;
-    overflow:hidden;
-    position:relative;
-}
-
-.line{
-    opacity:0;
-    animation:type 0.5s forwards;
-}
-
-@keyframes type{
-    to{
-        opacity:1;
-    }
-}
-
-.manifest{
-    margin:80px auto;
-    width:90%;
-    text-align:center;
-    padding:60px 20px;
-    border:2px solid rgba(255,255,255,.15);
-    background:rgba(255,255,255,.03);
-}
-
-.manifest h1{
-    font-size:4rem;
-    color:white;
-    text-shadow:
-    0 0 25px white,
-    0 0 50px red;
-}
-
-.manifest p{
-    margin-top:20px;
-    color:#bbb;
-    font-size:1.1rem;
-}
-
-#threat{
-    font-size:2rem;
-    color:#ff3c52;
-}
-
-.ctosMode{
-    filter:contrast(1.3) brightness(.8);
-}
-
-.ctosMode .card{
-    border-color:rgba(255,0,0,.3);
-    box-shadow:0 0 40px rgba(255,0,0,.12);
-}
-
-.ctosMode h3,
-.ctosMode .logo h1{
-    color:#ff5a5a;
-    text-shadow:0 0 15px red;
-}
-
-.dedsecMode{
-    background:black;
-}
-
-.dedsecMode .card{
-    border-color:white;
-    background:rgba(255,255,255,.03);
-}
-
-.dedsecMode *{
-    color:white !important;
-    text-shadow:none !important;
-}
-
-.dedsecMode .ticker{
-    background:white;
-}
-
-.dedsecMode .tickerText{
-    color:black !important;
-}
-
-.dedsecMode .manifest{
-    border:2px solid white;
-}
-
-.fakeCam{
-    margin-top:15px;
-    border-radius:15px;
-    overflow:hidden;
-    position:relative;
-}
-
-.fakeCam img{
-    width:100%;
-    filter:grayscale(.3) contrast(1.3);
-}
-
-.camLabel{
-    position:absolute;
-    top:10px;
-    left:10px;
-    background:black;
-    padding:5px 10px;
-    font-size:.7rem;
-    color:#00ff7f;
-}
-
-@media(max-width:900px){
-    .grid{
-        grid-template-columns:1fr;
-    }
-
-    .heroContent h2{
-        font-size:2rem;
-    }
-
-    .manifest h1{
-        font-size:2.2rem;
-    }
-
-    .topbar{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:15px;
-    }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WZK_NEWS | System ctOS</title>
+    <style>
+        :root {
+            /* NOWOCZESNA PALETA CZERWIENI I CZERNI */
+            --wzk-red: #ff0000; /* Czysta, jaskrawa czerwień */
+            --wzk-red-dark: #800000;
+            --wzk-red-alpha: rgba(255, 0, 0, 0.1);
+            --bg-black: #050505; /* Prawie czysty czarny, nowoczesny */
+            --bg-panel: rgba(15, 15, 15, 0.95); /* Ostre, ciemne panele */
+            --text-main: #ffffff;
+            --dedsec-cyan: #00ffff; /* Kontrast dla hakerów */
+            
+            --border-sharp: 1px solid var(--wzk-red);
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            cursor: crosshair; 
+            font-family: 'Chakra Petch', sans-serif; /* Nowoczesny, geometryczny font */
+        }
+
+        /* USUNIĘTO EFEKTY RETRO (SCANLINES, CRT) */
+
+        body {
+            background: var(--bg-black);
+            color: var(--text-main);
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        /* --- NOWOCZESNE TŁO GEOMETRYCZNE --- */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--wzk-red-alpha) 1px, transparent 1px),
+                linear-gradient(90deg, var(--wzk-red-alpha) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* --- NAGŁÓWEK (NOWOCZESNY I CZERWONY) --- */
+        header {
+            height: 70px;
+            background: var(--bg-panel);
+            border-bottom: 2px solid var(--wzk-red);
+            display: flex; align-items: center; padding: 0 30px;
+            justify-content: space-between;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+            z-index: 100;
+            position: relative;
+        }
+
+        .logo { font-weight: 900; font-size: 1.8rem; letter-spacing: 2px; color: var(--wzk-red); text-shadow: 0 0 10px var(--wzk-red); }
+        .live-tag { background: var(--wzk-red); color: black; padding: 2px 12px; font-size: 0.8rem; font-weight: bold; animation: glitch-blink 0.5s infinite; }
+
+        @keyframes glitch-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } 90% { opacity: 1; transform: skewX(10deg); } }
+
+        main { display: grid; grid-template-columns: 3fr 1fr; gap: 15px; padding: 15px; max-width: 1600px; margin: auto; height: calc(100vh - 110px); }
+
+        /* --- GŁÓWNY NEWS (NOWOCZESNY) --- */
+        .hero-news {
+            background: var(--bg-panel);
+            border: var(--border-sharp);
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .cctv-feed {
+            width: 100%; height: 60%; background: #000;
+            position: relative; overflow: hidden;
+            border-bottom: var(--border-sharp);
+        }
+
+        .cctv-label { position: absolute; top: 10px; left: 10px; font-size: 0.8rem; background: rgba(0,0,0,0.8); padding: 2px 5px; color: var(--wzk-red); }
+        .cctv-rec { position: absolute; top: 10px; right: 10px; color: var(--wzk-red); font-weight: bold; animation: blink 1s infinite;}
+
+        .news-text { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .news-text h2 { font-size: 2.2rem; color: var(--wzk-red); text-transform: uppercase; margin-bottom: 10px; }
+        .news-text p { font-size: 1.1rem; opacity: 0.9; }
+
+        /* --- SIDEBAR (NOWOCZESNY) --- */
+        aside { display: flex; flex-direction: column; gap: 15px; }
+        .sidebar-section {
+            background: var(--bg-panel); border: var(--border-sharp);
+            padding: 15px; position: relative;
+        }
+        .sidebar-section h3 { color: var(--wzk-red); text-transform: uppercase; margin-bottom: 10px; font-size: 1rem; border-bottom: 1px solid var(--wzk-red); padding-bottom: 5px;}
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;}
+        .stat-value { color: var(--wzk-red); font-weight: bold;}
+
+        /* --- TICKER (CZERWONY) --- */
+        .ticker {
+            position: fixed; bottom: 0; width: 100%; height: 40px;
+            background: var(--wzk-red); color: black; font-weight: bold;
+            display: flex; align-items: center; overflow: hidden; z-index: 100;
+        }
+        .ticker-label { background: black; color: var(--wzk-red); padding: 0 20px; height: 100%; display: flex; align-items: center; z-index: 10; }
+        .ticker-wrap { white-space: nowrap; animation: ticker-move 20s linear infinite; display: flex; align-items: center; }
+        @keyframes ticker-move { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- FAZA CTOS TAKEOVER (AGRESYWNA CZERWIEŃ) --- */
+        .ctos-alert { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,0,0,0.2); z-index: 500; pointer-events: none; border: 20px solid var(--wzk-red); box-shadow: inset 0 0 100px rgba(255,0,0,0.5); }
+        .ctos-mode #headline { animation: red-pulse 1s infinite; }
+        @keyframes red-pulse { 0%, 100% { color: var(--wzk-red); } 50% { color: white; } }
+
+        /* --- FAZA DEDSEC (HAKERSKI KONTRAST) --- */
+        .dedsec-mode {
+            background: #000 !important;
+            filter: none !important;
+        }
+        .dedsec-mode * {
+            color: var(--text-main) !important;
+            border-color: var(--text-main) !important;
+            text-shadow: none !important;
+        }
+        .dedsec-mode .wzk-hacked { color: var(--dedsec-cyan) !important; text-shadow: 0 0 10px var(--dedsec-cyan) !important; }
+        .dedsec-mode .logo { color: white !important; }
+        .dedsec-mode header { border-bottom: 2px solid white !important; }
+        
+        #dedsec-manifesto {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 1000; padding: 50px; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #dedsec-manifesto h1 { font-size: 5rem; text-transform: uppercase; line-height: 0.9; text-align: center; }
+        #dedsec-manifesto .cyan { color: var(--dedsec-cyan) !important; }
+
+        #terminal {
+            width: 80%; height: 200px; background: rgba(0,0,0,0.5); border: 1px solid var(--dedsec-cyan);
+            margin-top: 30px; font-family: monospace; padding: 10px; overflow: hidden; color: var(--dedsec-cyan) !important; font-size: 0.9rem;
+        }
+
+    </style>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
-<div id="noise"></div>
+<div class="grid-bg"></div>
+<div class="ctos-alert" id="ctos-visual"></div>
 
-<header>
-    <div class="topbar">
-        <div class="logo">
-            <h1>WZK</h1>
-            <span>Warszawskie Zintegrowane Kanały // ctOS MEDIA NODE</span>
-        </div>
-
-        <div class="status">
-            <div>SYSTEM ONLINE</div>
-            <div>WARSZAWA CENTRAL</div>
-            <div id="clock">23:48:12</div>
-        </div>
-    </div>
+<header id="main-header">
+    <div class="logo">WZK::NEWS</div>
+    <div id="clock">2026-05-11 // 22:15:01</div>
+    <div class="live-tag">NA ŻYWO</div>
 </header>
 
-<section class="hero">
-    <video autoplay muted loop>
-        <source src="https://cdn.coverr.co/videos/coverr-night-traffic-in-the-city-1563743892787?download=1080p" type="video/mp4">
-    </video>
-
-    <div class="overlay"></div>
-
-    <div class="heroContent">
-        <h2 id="headline">
-            Warszawa wraca do stabilności po nocnych zamieszkach społecznych
-        </h2>
-        <p>
-            ctOS zapewnia, że sytuacja pozostaje pod pełną kontrolą.
-        </p>
-    </div>
-</section>
-
-<div class="grid">
-
-    <div>
-
-        <div class="card">
-            <h3>WIADOMOŚCI DNIA</h3>
-
-            <div class="newsItem">
-                <h4>Policja zabezpiecza centrum miasta</h4>
-                <p>
-                    Według oficjalnych danych incydenty mają charakter lokalny.
-                    ctOS koordynuje monitoring i służby ratunkowe.
-                </p>
-            </div>
-
-            <div class="newsItem">
-                <h4>Komunikacja miejska częściowo przywrócona</h4>
-                <p>
-                    Metro linii M1 wraca do działania po tymczasowym wstrzymaniu ruchu.
-                </p>
-            </div>
-
-            <div class="newsItem">
-                <h4>Ministerstwo Bezpieczeństwa apeluje o spokój</h4>
-                <p>
-                    Władze proszą obywateli o pozostanie w domach oraz unikanie
-                    nieautoryzowanych zgromadzeń.
-                </p>
-            </div>
-
-            <div class="alert" id="alertBox">
-                STATUS SYSTEMU: STABILNY
-            </div>
+<main id="content-grid">
+    <section class="hero-news">
+        <div class="cctv-feed">
+            <div class="cctv-label">NIGHT_CAM_01 // PLAC DEFILAD // WARSZAWA</div>
+            <div class="cctv-rec">● REC</div>
+            <!-- Obraz dynamiczny, ciemny -->
+            <img src="https://images.unsplash.com/photo-1595811776999-52467d022b39?q=80&w=1600" alt="Hacked Feed" style="width:100%; height:100%; object-fit: cover; opacity: 0.3; filter: grayscale(1) sepia(1) hue-rotate(-50deg);">
         </div>
-
-        <div class="card">
-            <h3>BEZPIECZEŃSTWO OBYWATELI</h3>
-
-            <p>
-                Poziom zagrożenia miasta:
-            </p>
-
-            <h1 id="threat">NISKI</h1>
-
-            <div class="fakeCam">
-                <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=1200&auto=format&fit=crop">
-                <div class="camLabel">
-                    CT-CAM // PL-WAW-44
-                </div>
-            </div>
+        <div class="news-text">
+            <h2 id="headline">SPRAWCY WANDALIZMU ZIDENTYFIKOWANI.</h2>
+            <p id="sub-headline">System ctOS 2.0 pomyślnie przetworzył nagrania z nocy. Policja Warszawska dziękuje korporacji Blume za błyskawiczne wsparcie w przywracaniu porządku publicznego.</p>
         </div>
+    </section>
 
-        <div class="card">
-            <h3>TRANSMISJA SYSTEMOWA</h3>
-
-            <div class="terminal" id="terminal"></div>
+    <aside>
+        <div class="sidebar-section">
+            <h3>STATUS MIASTA</h3>
+            <div class="stat-row"><span>Sektor Centrum:</span> <span class="stat-value">STABILNY</span></div>
+            <div class="stat-row"><span>Zatrzymania:</span> <span class="stat-value">142</span></div>
+            <div class="stat-row"><span>Poziom Algorytmu:</span> <span class="stat-value">98.1%</span></div>
         </div>
-
-    </div>
-
-    <div class="sidebar">
-
-        <div class="card live">
-            <div class="liveTag">LIVE</div>
-
-            <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200&auto=format&fit=crop">
-
-            <div style="margin-top:15px;">
-                <h3>TRANSMISJA NA ŻYWO</h3>
-                <p>
-                    Kamery miejskie monitorują sytuację w czasie rzeczywistym.
-                </p>
-            </div>
+        <div class="sidebar-section" id="security-box">
+            <h3>Nadzór Obywatelski</h3>
+            <div class="stat-row"><span>Zagrożenie:</span> <span class="stat-value" style="color: lime !important">MINIMALNE</span></div>
+            <p style="font-size: 0.8rem; margin-top: 5px;">Zostań w domu. ctOS dba o Ciebie.</p>
         </div>
-
-        <div class="card">
-            <h3>POGODA</h3>
-
-            <p>Warszawa — 9°C</p>
-            <p>Mgła i opady deszczu</p>
-            <p>Widoczność: ograniczona</p>
+        <div class="sidebar-section">
+            <h3>KOMUNIKACJA</h3>
+            <p>Metro: Płynnie</p>
+            <p>Autobusy: Przekierowania</p>
         </div>
-
-        <div class="card">
-            <h3>ANALIZA CTOS</h3>
-
-            <p>
-                Stabilność społeczna: 74%
-            </p>
-
-            <p style="margin-top:12px;">
-                Zaufanie obywateli: 81%
-            </p>
-
-            <p style="margin-top:12px;">
-                Aktywność destabilizacyjna: 12%
-            </p>
-        </div>
-
-    </div>
-
-</div>
-
-<section class="manifest">
-    <h1 id="manifestText">
-        SYSTEM AKTYWNY
-    </h1>
-
-    <p id="manifestSub">
-        Wszystkie sieci miejskie pozostają pod kontrolą ctOS.
-    </p>
-</section>
+    </aside>
+</main>
 
 <div class="ticker">
-    <div class="tickerText" id="ticker">
-        [WZK LIVE] ctOS stabilizuje sytuację w Warszawie • służby bezpieczeństwa zwiększają monitoring • obywatele proszeni o pozostanie w domach • wykryto nieautoryzowane transmisje sieciowe •
+    <div class="ticker-label">PILNE</div>
+    <div class="ticker-wrap" id="ticker-text">
+        +++ AKTUALIZACJA ctOS: WPROWADZONO STREFY OGRANICZONEGO DOSTĘPU W CENTRUM +++ ZACHOWAJ SPOKÓJ +++ JESTEŚMY TU DLA CIEBIE +++ KORPORACJA BLUME OGŁASZA SUKCES SYSTEMU PRE-CRIME +++
     </div>
+</div>
+
+<div id="dedsec-manifesto">
+    <h1 class="wzk-hacked">TO NIE JEST AWARIA.</h1>
+    <h1 class="cyan">TO PRZEBUDZENIE.</h1>
+    <p style="font-size: 1.2rem; margin-top: 10px;">WZK kłamie. ctOS Cię inwigiluje.</p>
+    <div id="terminal"></div>
 </div>
 
 <script>
+    const headline = document.getElementById('headline');
+    const subHeadline = document.getElementById('sub-headline');
+    const body = document.body;
+    const ctosVisual = document.getElementById('ctos-visual');
 
-const terminal = document.getElementById("terminal");
+    // Zegar
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleString('pl-PL').replace(',', ' //');
+    }, 1000);
 
-const lines = [
-"[23:48:18] ctOS node connected...",
-"[23:48:20] monitoring city cameras...",
-"[23:48:24] citizen tracking enabled",
-"[23:48:28] scanning communication channels...",
-"[23:48:35] anomaly detected...",
-"[23:48:39] warning: unauthorized packets",
-"[23:48:44] ctOS stabilizing district 7",
-"[23:48:48] surveillance escalation active"
-];
+    // FAZA 2: Przejęcie przez ctOS (po 8 sekundach) - Agresywna propaganda
+    setTimeout(() => {
+        ctosVisual.style.display = 'block';
+        body.classList.add('ctos-mode');
+        
+        headline.innerText = "STAN WYJĄTKOWY: PEŁNA KONTROLA SYSTEMOWA.";
+        subHeadline.innerText = "Wykryto próby destabilizacji. Algorytmy predykcyjne ctOS przejmują zarządzanie ruchem i mediami. Obywatele są proszeni o natychmiastowy powrót do domów pod groźbą aresztu biometrycznego.";
+        document.getElementById('security-box').innerHTML = "<h3>STATUS NADZORU</h3><div class='stat-row'><span>Zagrożenie:</span> <span class='stat-value' style='animation: red-pulse 0.5s infinite'>KRYTYCZNE</span></div><p>Skany biometryczne aktywne.</p>";
+    }, 8000);
 
-lines.forEach((line,index)=>{
-    const div=document.createElement("div");
-    div.className="line";
-    div.style.animationDelay=`${index*0.8}s`;
-    div.innerText=line;
-    terminal.appendChild(div);
-});
+    // FAZA 3: Atak DedSec (po 16 sekundach) - Nowoczesny, ostry glitch
+    setTimeout(() => {
+        ctosVisual.style.display = 'none';
+        body.classList.remove('ctos-mode');
+        
+        // Ukryj normalną treść
+        document.getElementById('content-grid').style.display = 'none';
+        document.querySelector('.ticker').style.display = 'none';
+        
+        // Pokaż manifest
+        body.classList.add('dedsec-mode');
+        document.getElementById('dedsec-manifesto').style.display = 'flex';
+        
+        startTerminal();
+    }, 16000);
 
-function updateClock(){
-    const now = new Date();
-    document.getElementById("clock").innerText =
-    now.toLocaleTimeString("pl-PL");
-}
-
-setInterval(updateClock,1000);
-
-setTimeout(()=>{
-    document.body.classList.add("glitch");
-
-    document.getElementById("headline").innerText =
-    "ctOS stabilizuje sytuację po aktach destabilizacji";
-
-    document.getElementById("alertBox").innerText =
-    "ANOMALIA WYKRYTA // AUTOMATYCZNA KOREKCJA INFORMACJI";
-
-},6000);
-
-setTimeout(()=>{
-
-    document.body.classList.remove("glitch");
-    document.body.classList.add("ctosMode");
-
-    document.getElementById("threat").innerText="ŚREDNI";
-
-    document.getElementById("ticker").innerText =
-    "[ctOS ALERT] elementy destabilizujące zidentyfikowane • zgłaszaj podejrzane zachowania • pełna kontrola miasta zwiększa bezpieczeństwo • monitoring obywateli aktywny •";
-
-    document.getElementById("manifestText").innerText =
-    "PORZĄDEK WYMAGA NADZORU";
-
-    document.getElementById("manifestSub").innerText =
-    "ctOS chroni obywateli przed zagrożeniem chaosu.";
-
-},12000);
-
-setTimeout(()=>{
-
-    document.body.classList.add("glitch");
-
-    const audio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_4d8f2f1a4e.mp3");
-    audio.volume = 0.4;
-    audio.play();
-
-    document.getElementById("headline").innerText =
-    "BŁĄD TRANSMISJI // NIEAUTORYZOWANY DOSTĘP";
-
-    document.getElementById("alertBox").innerText =
-    "CTOS CORE FAILURE";
-
-},18000);
-
-setTimeout(()=>{
-
-    document.body.classList.remove("ctosMode");
-    document.body.classList.add("dedsecMode");
-    document.body.classList.add("glitch");
-
-    document.getElementById("manifestText").innerText =
-    "TO NIE JEST AWARIA. TO PRZEBUDZENIE.";
-
-    document.getElementById("manifestSub").innerText =
-    "DedSec ujawnia prawdę o systemie kontroli.";
-
-    document.getElementById("headline").innerText =
-    "WYCIEK: ctOS prowadził masową inwigilację obywateli";
-
-    document.getElementById("ticker").innerText =
-    "[DEDSEC LIVE] media manipulowały społeczeństwem • dane obywateli sprzedawane korporacjom • tajne eksperymenty ujawnione • przejmujemy transmisję •";
-
-    document.getElementById("threat").innerText =
-    "SYSTEM UPADA";
-
-    terminal.innerHTML = `
-    <div class="line">root@dedsec: access granted</div>
-    <div class="line">decrypting classified archives...</div>
-    <div class="line">uploading surveillance leaks...</div>
-    <div class="line">government corruption exposed</div>
-    <div class="line">media manipulation protocols found</div>
-    <div class="line">ctOS psychological monitoring enabled</div>
-    <div class="line">citizen privacy status: NON-EXISTENT</div>
-    <div class="line">WE ARE DEDSEC</div>
-    `;
-
-},24000);
-
+    function startTerminal() {
+        const lines = [
+            "> Initializing DedSec.Exploit.v4...",
+            "> Bypassing WZK Firewall... DONE.",
+            "> Accessing Restricted Data...",
+            "> DECRYPTING FILE: 'MANIPULACJA_WYBORCZA_WAW.LOG'",
+            "> FOUND: Zapisy rozmów Blume z Rządem.",
+            "> UPLOADING TRUTH...",
+            "> [######----] 60%",
+            "> WOLNOŚĆ TO NIE KŁAMSTWO.",
+            "> ODZYSKAJCIE MIASTO.",
+            "> DEDSEC JEST TUTAJ."
+        ];
+        
+        const term = document.getElementById('terminal');
+        let i = 0;
+        setInterval(() => {
+            if(i < lines.length) {
+                const p = document.createElement('p');
+                p.innerText = lines[i];
+                term.appendChild(p);
+                term.scrollTop = term.scrollHeight;
+                i++;
+            }
+        }, 600);
+    }
 </script>
 
 </body>
