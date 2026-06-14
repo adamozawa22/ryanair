@@ -3,244 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System Alarmowy - Retro Style</title>
+<title>Przemysłowy Panel Alarmowy</title>
 <style>
-    /* Ogólne style i tło nawiązujące do starego iOS */
+    /* Tło ściany / otoczenia */
     body {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        background-color: #5b626d;
-        background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
         margin: 0;
+        height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        color: white;
+        background-color: #2a2a2a;
+        font-family: 'Arial', sans-serif;
     }
 
-    /* Kontener imitujący ekran telefonu */
-    .phone-container {
-        width: 320px;
-        height: 480px;
+    /* Główna obudowa panelu (Tablet Landscape) */
+    .panel-casing {
+        width: 90vw;
+        max-width: 1000px;
+        height: 80vh;
+        max-height: 600px;
+        background: linear-gradient(135deg, #e0e5ec 0%, #a3abb5 100%);
+        border-radius: 15px;
+        box-shadow: 
+            0 20px 50px rgba(0,0,0,0.8),
+            inset 0 5px 10px rgba(255,255,255,0.8),
+            inset 0 -5px 15px rgba(0,0,0,0.2);
+        border: 4px solid #88929e;
+        display: flex;
+        padding: 30px;
+        box-sizing: border-box;
+        gap: 30px;
+    }
+
+    /* Lewa strona - Wyświetlacz LCD */
+    .left-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         background: #111;
-        border-radius: 30px;
-        padding: 60px 15px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.2);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: inset 0 0 20px #000;
+        border: 2px solid #444;
+    }
+
+    .lcd-screen {
+        flex: 1;
+        background-color: #9ea776; /* Klasyczna zieleń LCD */
+        border: inset 6px #222;
+        border-radius: 5px;
+        padding: 20px;
+        font-family: 'Courier New', Courier, monospace;
+        color: #1e261d;
+        font-size: 28px;
+        font-weight: bold;
+        text-transform: uppercase;
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+        text-shadow: 1px 1px 0px rgba(158, 167, 118, 0.5); /* Efekt poświaty pikseli */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         position: relative;
         overflow: hidden;
     }
 
-    /* Obszar roboczy ekranu */
-    .screen {
-        width: 100%;
-        height: 100%;
-        background: #ced5e0;
-        position: relative;
+    /* Paski imitujące odświeżanie ekranu LCD */
+    .lcd-screen::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,0.05),
+            rgba(0,0,0,0.05) 2px,
+            transparent 2px,
+            transparent 4px
+        );
+        pointer-events: none;
+    }
+
+    /* Prawa strona - Fizyczne przyciski */
+    .right-section {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        border: 2px solid #000;
+        justify-content: center;
+        background: #cfd4db;
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid #b0b8c4;
+        box-shadow: inset 0 2px 5px rgba(255,255,255,0.8), inset 0 -2px 5px rgba(0,0,0,0.1);
     }
 
-    /* Pasek tytułowy (Top Bar) */
-    .top-bar {
-        background: linear-gradient(to bottom, #aeb9ce 0%, #7d8ea8 50%, #687b9b 51%, #6d80a1 100%);
-        border-bottom: 1px solid #2e3542;
-        text-align: center;
-        padding: 10px 0;
-        font-weight: bold;
-        font-size: 18px;
-        color: white;
-        text-shadow: 0 -1px 0 rgba(0,0,0,0.7);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
-    }
-
-    /* --- EKRAN PIN --- */
-    #pin-screen {
-        display: flex;
-    }
-
-    .pin-display {
-        background: white;
-        color: black;
-        margin: 20px;
-        padding: 15px;
-        text-align: center;
-        font-size: 24px;
-        letter-spacing: 10px;
-        border-radius: 5px;
-        border: 1px solid #777;
-        box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-    }
-
-    .keypad {
+    /* --- Fizyczne Przyciski Klawiatury (Numpad) --- */
+    .numpad {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        padding: 0 20px;
+        gap: 15px;
+        height: 100%;
     }
 
-    /* Szkliste przyciski (Glossy Buttons) */
-    .btn {
-        background: linear-gradient(to bottom, #ffffff 0%, #e5e5e5 50%, #cccccc 51%, #f4f4f4 100%);
-        border: 1px solid #555;
+    .btn-physical {
+        background: linear-gradient(to bottom, #5a5f66 0%, #3e4247 100%);
+        border: none;
         border-radius: 8px;
-        padding: 15px 0;
-        font-size: 20px;
+        color: white;
+        font-size: 28px;
         font-weight: bold;
-        color: #333;
-        text-shadow: 0 1px 0 rgba(255,255,255,0.8);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 2px rgba(0,0,0,0.3);
         cursor: pointer;
-    }
-
-    .btn:active {
-        background: linear-gradient(to bottom, #cccccc 0%, #aaaaaa 50%, #999999 51%, #cccccc 100%);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
-    }
-
-    .btn-zero {
-        grid-column: 2;
-    }
-
-    /* --- EKRAN PANELU STEROWANIA --- */
-    #dashboard-screen {
-        display: none;
-        padding: 20px;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .action-btn {
-        width: 100%;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: bold;
-        color: white;
-        text-align: center;
-        border: 1px solid #000;
-        text-shadow: 0 -1px 0 rgba(0,0,0,0.8);
-        cursor: pointer;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 3px 5px rgba(0,0,0,0.4);
-    }
-
-    /* Czerwony przycisk z obrazka */
-    .btn-red {
-        background: linear-gradient(to bottom, #f78d8d 0%, #e03232 50%, #cc0000 51%, #e51c1c 100%);
-    }
-    .btn-red:active { background: #990000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.8); }
-
-    /* Niebieski/Czarny przycisk z obrazka */
-    .btn-dark {
-        background: linear-gradient(to bottom, #7d8ea8 0%, #465a7a 50%, #304363 51%, #415575 100%);
-    }
-    .btn-dark:active { background: #203353; box-shadow: inset 0 3px 5px rgba(0,0,0,0.8); }
-
-    /* --- ALERT OKIENKO (Z lewego górnego rogu obrazka) --- */
-    .modal-overlay {
-        display: none;
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6);
-        justify-content: center;
-        align-items: center;
-        z-index: 10;
-    }
-
-    .alert-box {
-        background: linear-gradient(to bottom, #2c3a59 0%, #1a253f 100%);
-        border: 2px solid #fff;
-        border-radius: 8px;
-        width: 80%;
-        text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4);
-    }
-
-    .alert-title {
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-        padding: 15px 10px 5px;
-        text-shadow: 0 -1px 0 #000;
-    }
-
-    .alert-text {
-        color: white;
-        font-size: 13px;
-        padding: 0 10px 15px;
-    }
-
-    .alert-buttons {
+        /* Potężny cień imitujący grubość przycisku */
+        box-shadow: 
+            0 8px 0 #1f2124, 
+            0 10px 15px rgba(0,0,0,0.6),
+            inset 0 2px 2px rgba(255,255,255,0.3);
+        transition: all 0.1s ease;
         display: flex;
         justify-content: center;
-        padding-bottom: 15px;
-        gap: 10px;
+        align-items: center;
+        text-shadow: 0 -1px 0 black;
     }
 
-    .alert-btn {
-        background: linear-gradient(to bottom, #6d80a1 0%, #415575 50%, #304363 51%, #465a7a 100%);
-        border: 1px solid #111;
-        border-radius: 5px;
-        color: white;
-        padding: 5px 15px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    .btn-physical:active {
+        transform: translateY(8px);
+        box-shadow: 
+            0 0 0 #1f2124, 
+            0 2px 5px rgba(0,0,0,0.6),
+            inset 0 4px 6px rgba(0,0,0,0.4);
     }
-    .alert-btn:active { background: #1a253f; }
+
+    .btn-clear { background: linear-gradient(to bottom, #d69838 0%, #a86e16 100%); box-shadow: 0 8px 0 #6b440a, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.3); }
+    .btn-clear:active { box-shadow: 0 0 0 #6b440a, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.4); }
+
+    .btn-enter { background: linear-gradient(to bottom, #4c9e4c 0%, #2e702e 100%); box-shadow: 0 8px 0 #184218, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.3); }
+    .btn-enter:active { box-shadow: 0 0 0 #184218, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.4); }
+
+    /* --- Panel Akcji (Po Zalogowaniu) --- */
+    .action-panel {
+        display: none;
+        flex-direction: column;
+        gap: 20px;
+        height: 100%;
+        justify-content: center;
+    }
+
+    .btn-alarm {
+        flex: 1;
+        font-size: 24px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .btn-fire {
+        background: linear-gradient(to bottom, #e34040 0%, #a61212 100%);
+        box-shadow: 0 8px 0 #5e0808, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.4);
+    }
+    .btn-fire:active { box-shadow: 0 0 0 #5e0808, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.6); }
+
+    .btn-intruder {
+        background: linear-gradient(to bottom, #3b71cc 0%, #17428c 100%);
+        box-shadow: 0 8px 0 #09214d, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.4);
+    }
+    .btn-intruder:active { box-shadow: 0 0 0 #09214d, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.6); }
+
+    .btn-logout {
+        flex: 0.5;
+        font-size: 18px;
+    }
+
+    /* Animacja migania dla alertów */
+    @keyframes blink {
+        0% { background-color: #9ea776; color: #1e261d; }
+        50% { background-color: #1e261d; color: #9ea776; }
+        100% { background-color: #9ea776; color: #1e261d; }
+    }
+    .flashing {
+        animation: blink 0.8s infinite;
+    }
 
 </style>
 </head>
 <body>
 
-<div class="phone-container">
+<div class="panel-casing">
     
-    <div id="pin-screen" class="screen">
-        <div class="top-bar">Wprowadź kod PIN</div>
-        <div class="pin-display" id="display">_ _ _ _</div>
-        
-        <div class="keypad">
-            <button class="btn" onclick="pressKey('1')">1</button>
-            <button class="btn" onclick="pressKey('2')">2</button>
-            <button class="btn" onclick="pressKey('3')">3</button>
-            <button class="btn" onclick="pressKey('4')">4</button>
-            <button class="btn" onclick="pressKey('5')">5</button>
-            <button class="btn" onclick="pressKey('6')">6</button>
-            <button class="btn" onclick="pressKey('7')">7</button>
-            <button class="btn" onclick="pressKey('8')">8</button>
-            <button class="btn" onclick="pressKey('9')">9</button>
-            <button class="btn btn-zero" onclick="pressKey('0')">0</button>
+    <div class="left-section">
+        <div id="lcd" class="lcd-screen">
+            SYSTEM ZABLOKOWANY<br>
+            <br>
+            PODAJ PIN:<br>
+            <span id="pin-display">_ _ _ _</span>
         </div>
     </div>
 
-    <div id="dashboard-screen" class="screen">
-        <div class="top-bar">Panel Główny</div>
-        <div style="color:#333; text-align:center; font-size:14px; margin-top:10px;">
-            System Rozbrojony.<br>Wybierz akcję ratunkową:
-        </div>
+    <div class="right-section">
         
-        <button class="action-btn btn-red" onclick="showAlert('ZAGROŻENIE POŻAROWE', 'Rozpoczęto procedurę ewakuacyjną i powiadomiono straż pożarną.')">
-            Zagrożenie Pożarowe
-        </button>
-        
-        <button class="action-btn btn-dark" onclick="showAlert('WŁAMANIE', 'Uruchomiono cichy alarm. Powiadomiono grupę interwencyjną.')">
-            Zgłoś Włamanie
-        </button>
-
-        <button class="action-btn" style="background: linear-gradient(to bottom, #555 0%, #333 50%, #222 51%, #444 100%); margin-top: auto; margin-bottom: 20px;" onclick="logout()">
-            Wyloguj (Zablokuj)
-        </button>
-    </div>
-
-    <div id="alert-modal" class="modal-overlay">
-        <div class="alert-box">
-            <div class="alert-title" id="alert-title">Alert Label</div>
-            <div class="alert-text" id="alert-text">Opis alertu...</div>
-            <div class="alert-buttons">
-                <button class="alert-btn" onclick="closeAlert()">Cancel</button>
-                <button class="alert-btn" onclick="closeAlert()">Continue</button>
-            </div>
+        <div id="numpad" class="numpad">
+            <button class="btn-physical" onclick="pressKey('1')">1</button>
+            <button class="btn-physical" onclick="pressKey('2')">2</button>
+            <button class="btn-physical" onclick="pressKey('3')">3</button>
+            <button class="btn-physical" onclick="pressKey('4')">4</button>
+            <button class="btn-physical" onclick="pressKey('5')">5</button>
+            <button class="btn-physical" onclick="pressKey('6')">6</button>
+            <button class="btn-physical" onclick="pressKey('7')">7</button>
+            <button class="btn-physical" onclick="pressKey('8')">8</button>
+            <button class="btn-physical" onclick="pressKey('9')">9</button>
+            <button class="btn-physical btn-clear" onclick="clearPin()">C</button>
+            <button class="btn-physical" onclick="pressKey('0')">0</button>
+            <button class="btn-physical btn-enter" onclick="submitPin()">OK</button>
         </div>
+
+        <div id="action-panel" class="action-panel">
+            <button class="btn-physical btn-alarm btn-fire" onclick="triggerAlarm('POZAR')">
+                POŻAR
+            </button>
+            <button class="btn-physical btn-alarm btn-intruder" onclick="triggerAlarm('WLAMANIE')">
+                WŁAMANIE
+            </button>
+            <button class="btn-physical btn-logout" onclick="logout()">
+                ZABLOKUJ PANEL
+            </button>
+        </div>
+
     </div>
 
 </div>
@@ -248,59 +231,76 @@
 <script>
     let currentPin = '';
     const correctPin = '4556';
-    const displayElement = document.getElementById('display');
-    const pinScreen = document.getElementById('pin-screen');
-    const dashScreen = document.getElementById('dashboard-screen');
-    const alertModal = document.getElementById('alert-modal');
+    
+    const lcd = document.getElementById('lcd');
+    const pinDisplay = document.getElementById('pin-display');
+    const numpad = document.getElementById('numpad');
+    const actionPanel = document.getElementById('action-panel');
 
+    // Aktualizacja znaków na ekranie LCD
     function updateDisplay() {
-        // Pokazuje gwiazdki zamiast cyfr, reszta to podkreślniki
         let dispText = '';
         for(let i=0; i<4; i++) {
             if(i < currentPin.length) dispText += '* ';
             else dispText += '_ ';
         }
-        displayElement.innerText = dispText.trim();
+        pinDisplay.innerText = dispText.trim();
     }
 
+    // Wprowadzanie cyfr
     function pressKey(num) {
         if (currentPin.length < 4) {
             currentPin += num;
             updateDisplay();
         }
+    }
 
-        // Sprawdzanie pinu, gdy wpisano 4 cyfry
-        if (currentPin.length === 4) {
-            setTimeout(() => {
-                if (currentPin === correctPin) {
-                    // Prawidłowy pin
-                    pinScreen.style.display = 'none';
-                    dashScreen.style.display = 'flex';
-                } else {
-                    // Błędny pin
-                    alert('Nieprawidłowy kod PIN. Spróbuj ponownie.');
-                }
-                currentPin = '';
-                updateDisplay();
-            }, 200);
+    // Czyszczenie PINu
+    function clearPin() {
+        currentPin = '';
+        updateDisplay();
+    }
+
+    // Zatwierdzanie PINu fizycznym przyciskiem OK
+    function submitPin() {
+        if (currentPin === correctPin) {
+            lcd.innerHTML = "AUTORYZACJA OK<br><br>SYSTEM ROZBROJONY<br>WYBIERZ AKCJE...";
+            numpad.style.display = 'none';
+            actionPanel.style.display = 'flex';
+            lcd.classList.remove('flashing');
+        } else {
+            lcd.innerHTML = "BŁĄD AUTORYZACJI<br>NIEPOPRAWNY PIN<br><br>PODAJ PIN:<br><span id='pin-display'></span>";
+            currentPin = '';
+            // Ponowne podpięcie elementu wyświetlacza pinu po przepisaniu HTMLa ekranu
+            document.getElementById('pin-display').innerText = '_ _ _ _';
         }
     }
 
-    function showAlert(title, message) {
-        document.getElementById('alert-title').innerText = title;
-        document.getElementById('alert-text').innerText = message;
-        alertModal.style.display = 'flex';
+    // Aktywacja wybranego alarmu
+    function triggerAlarm(type) {
+        numpad.style.display = 'none';
+        actionPanel.style.display = 'none'; // Ukrywamy przyciski, by nikt nie odwołał
+        lcd.classList.add('flashing'); // Efekt migania ekranu
+        
+        if(type === 'POZAR') {
+            lcd.innerHTML = "!!! ALARM !!!<br>ZAGROŻENIE POŻAROWE<br><br>EWAKUACJA<br>STRAŻ W DRODZE";
+        } else if (type === 'WLAMANIE') {
+            lcd.innerHTML = "!!! ALARM !!!<br>NARUSZENIE STREFY<br><br>GRUPA INTERWENCYJNA<br>POWIADOMIONA";
+        }
+
+        // Przycisk awaryjnego resetu pojawia się po 5 sekundach (symulacja deaktywacji)
+        setTimeout(() => {
+            lcd.innerHTML += "<br><br><button onclick='logout()' style='padding:10px; font-weight:bold; cursor:pointer;'>RESET SYSTEMU</button>";
+        }, 5000);
     }
 
-    function closeAlert() {
-        alertModal.style.display = 'none';
-    }
-
+    // Wylogowanie / Powrót do ekranu startowego
     function logout() {
-        dashScreen.style.display = 'none';
-        pinScreen.style.display = 'flex';
         currentPin = '';
-        updateDisplay();
+        lcd.classList.remove('flashing');
+        lcd.innerHTML = "SYSTEM ZABLOKOWANY<br><br>PODAJ PIN:<br><span id='pin-display'>_ _ _ _</span>";
+        actionPanel.style.display = 'none';
+        numpad.style.display = 'grid';
     }
 </script>
 </body>
