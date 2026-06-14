@@ -1,274 +1,307 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WZK NEWS | NETWORK STATUS</title>
-    <style>
-        :root {
-            --bg: #050505;
-            --primary: #ff0000;
-            --neon: #ff3131;
-            --text: #ffffff;
-            --ctos-blue: #00d4ff;
-            --panel-bg: rgba(20, 20, 20, 0.8);
-            --glitch-speed: 0.2s;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Alarmowy - Retro Style</title>
+<style>
+    /* Ogólne style i tło nawiązujące do starego iOS */
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #5b626d;
+        background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+    /* Kontener imitujący ekran telefonu */
+    .phone-container {
+        width: 320px;
+        height: 480px;
+        background: #111;
+        border-radius: 30px;
+        padding: 60px 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.2);
+        position: relative;
+        overflow: hidden;
+    }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    /* Obszar roboczy ekranu */
+    .screen {
+        width: 100%;
+        height: 100%;
+        background: #ced5e0;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid #000;
+    }
 
-        /* --- SYSTEM STATUS BAR (GÓRA) --- */
-        #system-status-bar {
-            height: 60px;
-            background: #008000; /* Startowy kolor zielony */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-bottom: 2px solid var(--text);
-            transition: background 0.5s;
-            z-index: 100;
-        }
+    /* Pasek tytułowy (Top Bar) */
+    .top-bar {
+        background: linear-gradient(to bottom, #aeb9ce 0%, #7d8ea8 50%, #687b9b 51%, #6d80a1 100%);
+        border-bottom: 1px solid #2e3542;
+        text-align: center;
+        padding: 10px 0;
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+        text-shadow: 0 -1px 0 rgba(0,0,0,0.7);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    }
 
-        .status-info { display: flex; align-items: center; gap: 15px; }
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+    /* --- EKRAN PIN --- */
+    #pin-screen {
+        display: flex;
+    }
 
-        /* --- DASHBOARD GRID --- */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 300px 1fr 300px;
-            grid-template-rows: 1fr 200px;
-            gap: 10px;
-            padding: 10px;
-            flex-grow: 1;
-            background: radial-gradient(circle, #1a1a1a 0%, #050505 100%);
-        }
+    .pin-display {
+        background: white;
+        color: black;
+        margin: 20px;
+        padding: 15px;
+        text-align: center;
+        font-size: 24px;
+        letter-spacing: 10px;
+        border-radius: 5px;
+        border: 1px solid #777;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    }
 
-        .panel {
-            background: var(--panel-bg);
-            border: 1px solid #333;
-            padding: 10px;
-            position: relative;
-            overflow: hidden;
-        }
+    .keypad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 0 20px;
+    }
 
-        .panel-header {
-            font-size: 0.8rem;
-            color: var(--primary);
-            border-bottom: 1px solid #333;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-        }
+    /* Szkliste przyciski (Glossy Buttons) */
+    .btn {
+        background: linear-gradient(to bottom, #ffffff 0%, #e5e5e5 50%, #cccccc 51%, #f4f4f4 100%);
+        border: 1px solid #555;
+        border-radius: 8px;
+        padding: 15px 0;
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 2px rgba(0,0,0,0.3);
+        cursor: pointer;
+    }
 
-        /* --- VIDEO FEED & MAP --- */
-        .live-feed { background: #111; height: 200px; position: relative; margin-bottom: 10px; }
-        .live-feed::after { content: "LIVE // CAM_04"; position: absolute; top: 5px; left: 5px; font-size: 0.7rem; color: red; }
-        
-        .threat-map {
-            width: 100%;
-            height: 100%;
-            background: url('https://api.placeholder.com/600/400') center/cover;
-            filter: grayscale(1) invert(1) sepia(1) saturate(10000%) hue-rotate(320deg);
-            opacity: 0.6;
-        }
+    .btn:active {
+        background: linear-gradient(to bottom, #cccccc 0%, #aaaaaa 50%, #999999 51%, #cccccc 100%);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+    }
 
-        /* --- NEWS TICKER --- */
-        .ticker-wrap {
-            grid-column: 1 / span 3;
-            background: #000;
-            border: 1px solid var(--primary);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
+    .btn-zero {
+        grid-column: 2;
+    }
 
-        .ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: ticker 20s linear infinite;
-            color: var(--neon);
-            font-size: 1.2rem;
-        }
+    /* --- EKRAN PANELU STEROWANIA --- */
+    #dashboard-screen {
+        display: none;
+        padding: 20px;
+        flex-direction: column;
+        gap: 20px;
+    }
 
-        @keyframes ticker {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
+    .action-btn {
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        border: 1px solid #000;
+        text-shadow: 0 -1px 0 rgba(0,0,0,0.8);
+        cursor: pointer;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 3px 5px rgba(0,0,0,0.4);
+    }
 
-        /* --- TERMINAL --- */
-        #terminal { font-size: 0.7rem; color: #0f0; height: 150px; overflow-y: hidden; }
+    /* Czerwony przycisk z obrazka */
+    .btn-red {
+        background: linear-gradient(to bottom, #f78d8d 0%, #e03232 50%, #cc0000 51%, #e51c1c 100%);
+    }
+    .btn-red:active { background: #990000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.8); }
 
-        /* --- GLITCH EFFECTS (CLASS MODIFIERS) --- */
-        .glitch-active .panel { animation: glitch 0.3s infinite; }
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
+    /* Niebieski/Czarny przycisk z obrazka */
+    .btn-dark {
+        background: linear-gradient(to bottom, #7d8ea8 0%, #465a7a 50%, #304363 51%, #415575 100%);
+    }
+    .btn-dark:active { background: #203353; box-shadow: inset 0 3px 5px rgba(0,0,0,0.8); }
 
-        /* --- STYLES FOR STAGES --- */
-        body.stage-3 #system-status-bar { background: #ff0000; animation: blinker 0.2s infinite; }
-        body.stage-5 { filter: invert(0.9) hue-rotate(180deg); } /* Blume style */
-        body.stage-6 { background: #000; color: #fff; }
-        body.stage-6 .panel { border-color: #fff; }
-        body.stage-6 #system-status-bar { background: #000; border-bottom: 5px solid #fff; }
+    /* --- ALERT OKIENKO (Z lewego górnego rogu obrazka) --- */
+    .modal-overlay {
+        display: none;
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+    }
 
-        /* Centralny komunikat DEDSEC */
-        #dedsec-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: black;
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-        }
-        .dedsec-logo { font-size: 5rem; font-weight: 900; letter-spacing: -5px; }
+    .alert-box {
+        background: linear-gradient(to bottom, #2c3a59 0%, #1a253f 100%);
+        border: 2px solid #fff;
+        border-radius: 8px;
+        width: 80%;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4);
+    }
 
-    </style>
+    .alert-title {
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 15px 10px 5px;
+        text-shadow: 0 -1px 0 #000;
+    }
+
+    .alert-text {
+        color: white;
+        font-size: 13px;
+        padding: 0 10px 15px;
+    }
+
+    .alert-buttons {
+        display: flex;
+        justify-content: center;
+        padding-bottom: 15px;
+        gap: 10px;
+    }
+
+    .alert-btn {
+        background: linear-gradient(to bottom, #6d80a1 0%, #415575 50%, #304363 51%, #465a7a 100%);
+        border: 1px solid #111;
+        border-radius: 5px;
+        color: white;
+        padding: 5px 15px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .alert-btn:active { background: #1a253f; }
+
+</style>
 </head>
-<body class="stage-1">
+<body>
 
-    <div id="system-status-bar">
-        <div class="status-info">
-            <span id="status-icon">●</span>
-            <span id="status-text">SYSTEM STABILNY</span>
+<div class="phone-container">
+    
+    <div id="pin-screen" class="screen">
+        <div class="top-bar">Wprowadź kod PIN</div>
+        <div class="pin-display" id="display">_ _ _ _</div>
+        
+        <div class="keypad">
+            <button class="btn" onclick="pressKey('1')">1</button>
+            <button class="btn" onclick="pressKey('2')">2</button>
+            <button class="btn" onclick="pressKey('3')">3</button>
+            <button class="btn" onclick="pressKey('4')">4</button>
+            <button class="btn" onclick="pressKey('5')">5</button>
+            <button class="btn" onclick="pressKey('6')">6</button>
+            <button class="btn" onclick="pressKey('7')">7</button>
+            <button class="btn" onclick="pressKey('8')">8</button>
+            <button class="btn" onclick="pressKey('9')">9</button>
+            <button class="btn btn-zero" onclick="pressKey('0')">0</button>
         </div>
-        <div class="system-time">ctOS v2.0 // <span id="clock">12:00:00</span></div>
     </div>
 
-    <div class="dashboard">
-        <!-- Lewa Kolumna: Monitoring -->
-        <div class="panel">
-            <div class="panel-header">[ MONITORING MIASTA ]</div>
-            <div class="live-feed"><div class="threat-map"></div></div>
-            <div class="live-feed" style="background: #222;"></div>
-            <div id="terminal">> Inicjalizacja...<br>> Połączenie stabilne...</div>
+    <div id="dashboard-screen" class="screen">
+        <div class="top-bar">Panel Główny</div>
+        <div style="color:#333; text-align:center; font-size:14px; margin-top:10px;">
+            System Rozbrojony.<br>Wybierz akcję ratunkową:
         </div>
+        
+        <button class="action-btn btn-red" onclick="showAlert('ZAGROŻENIE POŻAROWE', 'Rozpoczęto procedurę ewakuacyjną i powiadomiono straż pożarną.')">
+            Zagrożenie Pożarowe
+        </button>
+        
+        <button class="action-btn btn-dark" onclick="showAlert('WŁAMANIE', 'Uruchomiono cichy alarm. Powiadomiono grupę interwencyjną.')">
+            Zgłoś Włamanie
+        </button>
 
-        <!-- Środek: Główny News -->
-        <div class="panel">
-            <div class="panel-header">[ WZK LIVE BROADCAST ]</div>
-            <h1 id="main-news-title" style="margin-top:20px; font-size: 2.5rem;">WZK: BLUME ZAPEWNIA BEZPIECZEŃSTWO</h1>
-            <p id="main-news-desc" style="margin-top:20px; color: #ccc;">ctOS zarządza ruchem miejskim w San Francisco z wydajnością 99.9%.</p>
-            
-            <div id="data-flow" style="margin-top: 40px;">
-                <div style="height: 5px; background: #333; width: 100%; position: relative;">
-                    <div id="loading-bar" style="height: 100%; background: var(--primary); width: 10%;"></div>
-                </div>
-                <small>SYNCHRONIZACJA DANYCH...</small>
-            </div>
-        </div>
+        <button class="action-btn" style="background: linear-gradient(to bottom, #555 0%, #333 50%, #222 51%, #444 100%); margin-top: auto; margin-bottom: 20px;" onclick="logout()">
+            Wyloguj (Zablokuj)
+        </button>
+    </div>
 
-        <!-- Prawa Kolumna: Statystyki -->
-        <div class="panel">
-            <div class="panel-header">[ SYSTEM DATA ]</div>
-            <div style="margin-bottom: 20px;">
-                <label>CPU USAGE</label>
-                <div style="height: 40px; background: #111; display: flex; align-items: flex-end; gap: 2px;">
-                    <div style="height: 40%; width: 10px; background: var(--primary);"></div>
-                    <div style="height: 70%; width: 10px; background: var(--primary);"></div>
-                    <div style="height: 50%; width: 10px; background: var(--primary);"></div>
-                    <div style="height: 90%; width: 10px; background: var(--primary);"></div>
-                </div>
-            </div>
-            <div id="threat-alerts">
-                <div style="color: #666;">BRAK ZAGROŻEŃ</div>
-            </div>
-        </div>
-
-        <!-- Pasek na dole -->
-        <div class="ticker-wrap">
-            <div class="ticker" id="news-ticker">
-                +++ WZK NEWS: NOWE AKTUALIZACJE CTOS JUŻ DOSTĘPNE +++ POLICJA ZAPOWIADA ZWIĘKSZONE PATROLE +++ BLUME INWESTUJE W DOLINĘ KRZEMOWĄ +++
+    <div id="alert-modal" class="modal-overlay">
+        <div class="alert-box">
+            <div class="alert-title" id="alert-title">Alert Label</div>
+            <div class="alert-text" id="alert-text">Opis alertu...</div>
+            <div class="alert-buttons">
+                <button class="alert-btn" onclick="closeAlert()">Cancel</button>
+                <button class="alert-btn" onclick="closeAlert()">Continue</button>
             </div>
         </div>
     </div>
 
-    <div id="dedsec-overlay">
-        <div class="dedsec-logo">DED_SEC</div>
-        <h1 style="color: white; font-size: 3rem;">CTOS UPADŁ</h1>
-        <h2 style="color: white; border: 1px solid white; padding: 10px;">WOLNOŚĆ INFORMACJI WRÓCIŁA</h2>
-        <p style="margin-top: 20px; color: #555;">Prawda została ujawniona. Nie jesteście już obserwowani.</p>
-    </div>
+</div>
 
-    <script>
-        const body = document.body;
-        const statusText = document.getElementById('status-text');
-        const statusBar = document.getElementById('system-status-bar');
-        const mainTitle = document.getElementById('main-news-title');
-        const ticker = document.getElementById('news-ticker');
-        const terminal = document.getElementById('terminal');
+<script>
+    let currentPin = '';
+    const correctPin = '4556';
+    const displayElement = document.getElementById('display');
+    const pinScreen = document.getElementById('pin-screen');
+    const dashScreen = document.getElementById('dashboard-screen');
+    const alertModal = document.getElementById('alert-modal');
 
-        let stage = 1;
+    function updateDisplay() {
+        // Pokazuje gwiazdki zamiast cyfr, reszta to podkreślniki
+        let dispText = '';
+        for(let i=0; i<4; i++) {
+            if(i < currentPin.length) dispText += '* ';
+            else dispText += '_ ';
+        }
+        displayElement.innerText = dispText.trim();
+    }
 
-        function updateStage() {
-            stage++;
-            body.className = `stage-${stage}`;
-
-            if (stage === 2) {
-                statusText.innerText = "PROBLEMY TECHNICZNE W WZK";
-                statusBar.style.background = "#ffae00";
-                body.classList.add('glitch-active');
-                terminal.innerHTML += "<br>> Błąd protokołu s-11...";
-            } 
-            else if (stage === 3) {
-                statusText.innerText = "ATAK HAKERÓW NA WZK";
-                statusBar.style.background = "#ff0000";
-                mainTitle.innerText = "SYSTEM PRZEJĘTY - ALARM";
-                terminal.innerHTML += "<br><span style='color:red'>> WYKRYTO INTRUZA: DEDSEC</span>";
-            }
-            else if (stage === 4) {
-                statusText.innerText = "WZK: PRAWDA ZOSTANIE UJAWNIONA";
-                mainTitle.innerText = "DOKUMENTY BLUME WYCIEKŁY";
-                ticker.innerText = "+++ BLUME NAS SZPIEGUJE +++ KONIEC KŁAMSTW +++ PRAWDA JEST TUTAJ +++";
-                terminal.innerHTML += "<br>> Deszyfrowanie plików...";
-            }
-            else if (stage === 5) {
-                statusText.innerText = "PRZEJĘCIE KONTROLI — BLUME (RESET)";
-                statusBar.style.background = "#00d4ff";
-                mainTitle.innerText = "PRZYWRACANIE PORZĄDKU";
-                ticker.innerText = "+++ SYSTEM PRZYWRÓCONY +++ OBYWATELU: WRÓĆ DO DOMU +++";
-            }
-            else if (stage === 6) {
-                document.getElementById('dedsec-overlay').style.display = 'flex';
-                console.log("DEDSEC HAS TAKEN CONTROL");
-            }
+    function pressKey(num) {
+        if (currentPin.length < 4) {
+            currentPin += num;
+            updateDisplay();
         }
 
-        // Zmiana etapów co 5 sekund dla demonstracji
-        setInterval(updateStage, 5000);
+        // Sprawdzanie pinu, gdy wpisano 4 cyfry
+        if (currentPin.length === 4) {
+            setTimeout(() => {
+                if (currentPin === correctPin) {
+                    // Prawidłowy pin
+                    pinScreen.style.display = 'none';
+                    dashScreen.style.display = 'flex';
+                } else {
+                    // Błędny pin
+                    alert('Nieprawidłowy kod PIN. Spróbuj ponownie.');
+                }
+                currentPin = '';
+                updateDisplay();
+            }, 200);
+        }
+    }
 
-        // Zegar
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
+    function showAlert(title, message) {
+        document.getElementById('alert-title').innerText = title;
+        document.getElementById('alert-text').innerText = message;
+        alertModal.style.display = 'flex';
+    }
 
-        // Losowe logi w terminalu
-        setInterval(() => {
-            if(stage < 6) {
-                const logs = ["> PING...", "> DATA_SCAN...", "> CTOS_CHECK...", "> ADDR_RECV..."];
-                terminal.innerHTML += `<br>${logs[Math.floor(Math.random()*logs.length)]}`;
-                terminal.scrollTop = terminal.scrollHeight;
-            }
-        }, 2000);
-    </script>
+    function closeAlert() {
+        alertModal.style.display = 'none';
+    }
+
+    function logout() {
+        dashScreen.style.display = 'none';
+        pinScreen.style.display = 'flex';
+        currentPin = '';
+        updateDisplay();
+    }
+</script>
 </body>
 </html>
