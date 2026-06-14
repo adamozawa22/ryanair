@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Przemysłowy Panel Alarmowy</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
-    /* Tło ściany / otoczenia */
     body {
         margin: 0;
         height: 100vh;
@@ -16,7 +16,6 @@
         font-family: 'Arial', sans-serif;
     }
 
-    /* Główna obudowa panelu (Tablet Landscape) */
     .panel-casing {
         width: 90vw;
         max-width: 1000px;
@@ -37,7 +36,7 @@
 
     /* Lewa strona - Wyświetlacz LCD */
     .left-section {
-        flex: 1;
+        flex: 1.2;
         display: flex;
         flex-direction: column;
         background: #111;
@@ -49,25 +48,25 @@
 
     .lcd-screen {
         flex: 1;
-        background-color: #9ea776; /* Klasyczna zieleń LCD */
+        background-color: #9ea776; 
         border: inset 6px #222;
         border-radius: 5px;
         padding: 20px;
-        font-family: 'Courier New', Courier, monospace;
+        /* Cyfrowa czcionka */
+        font-family: 'VT323', monospace;
         color: #1e261d;
-        font-size: 28px;
-        font-weight: bold;
+        font-size: 42px;
+        line-height: 1.2;
         text-transform: uppercase;
         box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
-        text-shadow: 1px 1px 0px rgba(158, 167, 118, 0.5); /* Efekt poświaty pikseli */
+        text-shadow: 2px 2px 0px rgba(158, 167, 118, 0.4);
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
         position: relative;
         overflow: hidden;
     }
 
-    /* Paski imitujące odświeżanie ekranu LCD */
     .lcd-screen::after {
         content: "";
         position: absolute;
@@ -82,12 +81,20 @@
         pointer-events: none;
     }
 
-    /* Prawa strona - Fizyczne przyciski */
+    #lcd-status {
+        white-space: pre-line;
+    }
+
+    .lcd-input-area {
+        border-top: 2px dashed #1e261d;
+        padding-top: 10px;
+    }
+
+    /* Prawa strona - Fizyczne przyciski zawsze widoczne */
     .right-section {
         flex: 1;
         display: flex;
         flex-direction: column;
-        justify-content: center;
         background: #cfd4db;
         padding: 20px;
         border-radius: 10px;
@@ -95,12 +102,44 @@
         box-shadow: inset 0 2px 5px rgba(255,255,255,0.8), inset 0 -2px 5px rgba(0,0,0,0.1);
     }
 
-    /* --- Fizyczne Przyciski Klawiatury (Numpad) --- */
+    /* Górny panel ikon alarmowych */
+    .emergency-panel {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .icon-btn {
+        flex: 1;
+        font-size: 50px;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.1s ease;
+    }
+
+    .btn-fire {
+        background: linear-gradient(to bottom, #e34040 0%, #a61212 100%);
+        box-shadow: 0 8px 0 #5e0808, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.4);
+    }
+    .btn-fire:active { transform: translateY(8px); box-shadow: 0 0 0 #5e0808, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.6); }
+
+    .btn-intruder {
+        background: linear-gradient(to bottom, #3b71cc 0%, #17428c 100%);
+        box-shadow: 0 8px 0 #09214d, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.4);
+    }
+    .btn-intruder:active { transform: translateY(8px); box-shadow: 0 0 0 #09214d, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.6); }
+
+    /* Klawiatura numeryczna */
     .numpad {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
-        height: 100%;
+        flex: 1;
     }
 
     .btn-physical {
@@ -111,15 +150,11 @@
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
-        /* Potężny cień imitujący grubość przycisku */
         box-shadow: 
             0 8px 0 #1f2124, 
             0 10px 15px rgba(0,0,0,0.6),
             inset 0 2px 2px rgba(255,255,255,0.3);
         transition: all 0.1s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         text-shadow: 0 -1px 0 black;
     }
 
@@ -137,47 +172,13 @@
     .btn-enter { background: linear-gradient(to bottom, #4c9e4c 0%, #2e702e 100%); box-shadow: 0 8px 0 #184218, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.3); }
     .btn-enter:active { box-shadow: 0 0 0 #184218, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.4); }
 
-    /* --- Panel Akcji (Po Zalogowaniu) --- */
-    .action-panel {
-        display: none;
-        flex-direction: column;
-        gap: 20px;
-        height: 100%;
-        justify-content: center;
-    }
-
-    .btn-alarm {
-        flex: 1;
-        font-size: 24px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-
-    .btn-fire {
-        background: linear-gradient(to bottom, #e34040 0%, #a61212 100%);
-        box-shadow: 0 8px 0 #5e0808, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.4);
-    }
-    .btn-fire:active { box-shadow: 0 0 0 #5e0808, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.6); }
-
-    .btn-intruder {
-        background: linear-gradient(to bottom, #3b71cc 0%, #17428c 100%);
-        box-shadow: 0 8px 0 #09214d, 0 10px 15px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.4);
-    }
-    .btn-intruder:active { box-shadow: 0 0 0 #09214d, 0 2px 5px rgba(0,0,0,0.6), inset 0 4px 6px rgba(0,0,0,0.6); }
-
-    .btn-logout {
-        flex: 0.5;
-        font-size: 18px;
-    }
-
-    /* Animacja migania dla alertów */
     @keyframes blink {
         0% { background-color: #9ea776; color: #1e261d; }
         50% { background-color: #1e261d; color: #9ea776; }
         100% { background-color: #9ea776; color: #1e261d; }
     }
     .flashing {
-        animation: blink 0.8s infinite;
+        animation: blink 0.5s infinite;
     }
 
 </style>
@@ -188,16 +189,21 @@
     
     <div class="left-section">
         <div id="lcd" class="lcd-screen">
-            SYSTEM ZABLOKOWANY<br>
-            <br>
-            PODAJ PIN:<br>
-            <span id="pin-display">_ _ _ _</span>
+            <div id="lcd-status">SYSTEM GOTOWY<br><br>CZEKAM NA AKCJE...</div>
+            <div class="lcd-input-area">
+                PIN: <span id="pin-display">_ _ _ _</span>
+            </div>
         </div>
     </div>
 
     <div class="right-section">
         
-        <div id="numpad" class="numpad">
+        <div class="emergency-panel">
+            <button class="icon-btn btn-fire" onclick="triggerAlarm('POZAR')" title="Pożar">🔥</button>
+            <button class="icon-btn btn-intruder" onclick="triggerAlarm('WLAMANIE')" title="Włamanie">🥷</button>
+        </div>
+
+        <div class="numpad">
             <button class="btn-physical" onclick="pressKey('1')">1</button>
             <button class="btn-physical" onclick="pressKey('2')">2</button>
             <button class="btn-physical" onclick="pressKey('3')">3</button>
@@ -212,18 +218,6 @@
             <button class="btn-physical btn-enter" onclick="submitPin()">OK</button>
         </div>
 
-        <div id="action-panel" class="action-panel">
-            <button class="btn-physical btn-alarm btn-fire" onclick="triggerAlarm('POZAR')">
-                POŻAR
-            </button>
-            <button class="btn-physical btn-alarm btn-intruder" onclick="triggerAlarm('WLAMANIE')">
-                WŁAMANIE
-            </button>
-            <button class="btn-physical btn-logout" onclick="logout()">
-                ZABLOKUJ PANEL
-            </button>
-        </div>
-
     </div>
 
 </div>
@@ -231,13 +225,12 @@
 <script>
     let currentPin = '';
     const correctPin = '4556';
+    let isAlarmActive = false;
     
     const lcd = document.getElementById('lcd');
+    const lcdStatus = document.getElementById('lcd-status');
     const pinDisplay = document.getElementById('pin-display');
-    const numpad = document.getElementById('numpad');
-    const actionPanel = document.getElementById('action-panel');
 
-    // Aktualizacja znaków na ekranie LCD
     function updateDisplay() {
         let dispText = '';
         for(let i=0; i<4; i++) {
@@ -247,7 +240,6 @@
         pinDisplay.innerText = dispText.trim();
     }
 
-    // Wprowadzanie cyfr
     function pressKey(num) {
         if (currentPin.length < 4) {
             currentPin += num;
@@ -255,52 +247,57 @@
         }
     }
 
-    // Czyszczenie PINu
     function clearPin() {
         currentPin = '';
         updateDisplay();
     }
 
-    // Zatwierdzanie PINu fizycznym przyciskiem OK
     function submitPin() {
         if (currentPin === correctPin) {
-            lcd.innerHTML = "AUTORYZACJA OK<br><br>SYSTEM ROZBROJONY<br>WYBIERZ AKCJE...";
-            numpad.style.display = 'none';
-            actionPanel.style.display = 'flex';
+            // Zatrzymanie alarmu lub udane logowanie
+            isAlarmActive = false;
             lcd.classList.remove('flashing');
-        } else {
-            lcd.innerHTML = "BŁĄD AUTORYZACJI<br>NIEPOPRAWNY PIN<br><br>PODAJ PIN:<br><span id='pin-display'></span>";
+            lcdStatus.innerHTML = "AUTORYZACJA OK<br><br>SYSTEM ZRESETOWANY<br>I GOTOWY.";
             currentPin = '';
-            // Ponowne podpięcie elementu wyświetlacza pinu po przepisaniu HTMLa ekranu
-            document.getElementById('pin-display').innerText = '_ _ _ _';
+            updateDisplay();
+            
+            // Po 3 sekundach powrót do domyślnego tekstu
+            setTimeout(() => {
+                if(!isAlarmActive) {
+                    lcdStatus.innerHTML = "SYSTEM GOTOWY<br><br>CZEKAM NA AKCJE...";
+                }
+            }, 3000);
+
+        } else {
+            // Zły PIN
+            const previousText = lcdStatus.innerHTML;
+            lcdStatus.innerHTML = "BŁĄD AUTORYZACJI!<br><br>NIEPOPRAWNY PIN.";
+            currentPin = '';
+            updateDisplay();
+
+            // Powrót do poprzedniego ekranu po 2 sekundach
+            setTimeout(() => {
+                // Jeśli alarm wyje, przywracamy tekst alarmowy, jeśli nie - standardowy
+                if(isAlarmActive) {
+                    lcdStatus.innerHTML = previousText; 
+                } else {
+                    lcdStatus.innerHTML = "SYSTEM GOTOWY<br><br>CZEKAM NA AKCJE...";
+                }
+            }, 2000);
         }
     }
 
-    // Aktywacja wybranego alarmu
     function triggerAlarm(type) {
-        numpad.style.display = 'none';
-        actionPanel.style.display = 'none'; // Ukrywamy przyciski, by nikt nie odwołał
-        lcd.classList.add('flashing'); // Efekt migania ekranu
+        isAlarmActive = true;
+        lcd.classList.add('flashing');
+        currentPin = '';
+        updateDisplay();
         
         if(type === 'POZAR') {
-            lcd.innerHTML = "!!! ALARM !!!<br>ZAGROŻENIE POŻAROWE<br><br>EWAKUACJA<br>STRAŻ W DRODZE";
+            lcdStatus.innerHTML = "!!! ALARM !!!<br><br>WYKRYTO POŻAR<br>TRWA EWAKUACJA";
         } else if (type === 'WLAMANIE') {
-            lcd.innerHTML = "!!! ALARM !!!<br>NARUSZENIE STREFY<br><br>GRUPA INTERWENCYJNA<br>POWIADOMIONA";
+            lcdStatus.innerHTML = "!!! ALARM !!!<br><br>NARUSZENIE STREFY<br>WEZWANO OCHRONĘ";
         }
-
-        // Przycisk awaryjnego resetu pojawia się po 5 sekundach (symulacja deaktywacji)
-        setTimeout(() => {
-            lcd.innerHTML += "<br><br><button onclick='logout()' style='padding:10px; font-weight:bold; cursor:pointer;'>RESET SYSTEMU</button>";
-        }, 5000);
-    }
-
-    // Wylogowanie / Powrót do ekranu startowego
-    function logout() {
-        currentPin = '';
-        lcd.classList.remove('flashing');
-        lcd.innerHTML = "SYSTEM ZABLOKOWANY<br><br>PODAJ PIN:<br><span id='pin-display'>_ _ _ _</span>";
-        actionPanel.style.display = 'none';
-        numpad.style.display = 'grid';
     }
 </script>
 </body>
